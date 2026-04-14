@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LogiPark ZVL | Glocal Multi-Asset Sim</title>
+    <title>ZVL | 3PL Ecosystem Simulation</title>
     
-    <!-- LEAFLET.JS ДЛЯ СИМУЛЯЦІЇ КАРТИ -->
+    <!-- LEAFLET.JS ДЛЯ ГЕОПРОСТОРОВОЇ СИМУЛЯЦІЇ -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
 
-        /* ВІЗУАЛЬНА ДНК LOGIPARK */
+        /* ВІЗУАЛЬНА ДНК СИСТЕМИ */
         :root {
             --deep-navy: #0A1128;
             --safety-orange: #FF9F1C;
@@ -24,7 +24,7 @@
 
         * {
             box-sizing: border-box;
-            border-radius: 0px !important; /* СУВОРО: ЖОДНИХ ЗАКРУГЛЕНЬ */
+            border-radius: 0px !important; /* ПРИНЦИП: ЖОДНИХ ЗАКРУГЛЕНЬ */
             margin: 0;
             padding: 0;
             font-family: 'Roboto Mono', monospace;
@@ -45,7 +45,7 @@
             background-position: center center;
         }
 
-        /* HEADER */
+        /* ШАПКА ТА НАВІГАЦІЯ */
         header {
             background-color: var(--deep-navy);
             border-bottom: 2px solid var(--safety-orange);
@@ -78,15 +78,16 @@
         .btn-region.active {
             background-color: var(--safety-orange); color: var(--deep-navy);
             border-color: var(--safety-orange); box-shadow: 0 0 12px rgba(255, 159, 28, 0.6);
+            transform: scale(1.05);
         }
 
         .status-bar { font-size: 0.7rem; color: var(--safety-orange); }
 
-        /* MAIN SECTIONS */
+        /* СЕКЦІЇ ВКЛАДОК */
         .view-section { display: flex; flex: 1; padding: 20px; gap: 20px; overflow: hidden; width: 100%; }
         .hidden-view { display: none !important; }
 
-        /* PANELS */
+        /* ПАНЕЛІ */
         .panel {
             background-color: rgba(10, 17, 40, 0.95); border: 1px solid var(--grid-grey);
             display: flex; flex-direction: column; position: relative; flex: 1;
@@ -97,7 +98,7 @@
             display: flex; justify-content: space-between;
         }
 
-        /* FOG NODE (ADMIN TABLET) STYLES */
+        /* ADMIN TABLET STYLES */
         .tablet-frame {
             width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden;
         }
@@ -131,7 +132,7 @@
             background: rgba(255, 159, 28, 0.05); text-align: left;
         }
 
-        /* EDGE NODE (DRIVER) STYLES */
+        /* DRIVER MOBILE STYLES */
         .mobile-frame {
             width: 100%; max-width: 320px; height: 580px; border: 2px solid var(--grid-grey);
             background-color: var(--deep-navy); position: relative;
@@ -156,7 +157,7 @@
         .data-table tr.row-called { border-left: 3px solid var(--proceed-green); background-color: rgba(42, 157, 143, 0.05); }
         .data-table tr.row-shredded { opacity: 0.4; text-decoration: line-through; }
 
-        /* MAP */
+        /* КАРТА */
         .map-container { flex: 1; border: 1px solid var(--grid-grey); position: relative; background-color: var(--deep-navy); z-index: 1; }
         #leaflet-map { width: 100%; height: 100%; background-color: var(--deep-navy); }
         .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution {
@@ -167,7 +168,7 @@
         .map-truck-icon { background-color: var(--alert-red); border: 1px solid #fff; width: 12px; height: 12px; box-shadow: 0 0 10px var(--alert-red); transition: all 0.3s; }
         .map-truck-icon.green { background-color: var(--proceed-green); box-shadow: 0 0 10px var(--proceed-green); }
 
-        /* BUTTONS */
+        /* КНОПКИ */
         button { background-color: transparent; color: var(--data-white); border: 1px solid var(--grid-grey); padding: 8px 12px; cursor: pointer; font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; transition: all 0.2s; }
         button:hover { border-color: var(--safety-orange); color: var(--safety-orange); }
         
@@ -207,27 +208,27 @@
 <body>
 
     <header>
-        <div class="logo">LOGIPARK<span>_</span>ZVL</div>
+        <div class="logo">ZVL<span>_</span>SYSTEM</div>
         <div class="view-toggle">
-            <button class="btn-view active" onclick="switchView('operational')" id="btn-view-op">OPERATIONAL (EDGE/FOG)</button>
-            <button class="btn-view" onclick="switchView('global')" id="btn-view-gl">GLOBAL (CLOUD)</button>
+            <button class="btn-view active" onclick="switchView('operational')" id="btn-view-op">OPERATIONAL VIEW (EDGE/FOG)</button>
+            <button class="btn-view" onclick="switchView('global')" id="btn-view-gl">GLOBAL VIEW (CLOUD)</button>
         </div>
         <div class="header-controls">
             <div class="region-toggle">
                 <button class="btn-region active" onclick="switchRegion('UK')" id="btn-uk">UK DEPLOYMENT</button>
                 <button class="btn-region" onclick="switchRegion('USA')" id="btn-usa">USA DEPLOYMENT</button>
             </div>
-            <div class="status-bar">HUB: <span class="lbl-hub" style="color:#F2F2F2;">LCY2</span> | PATENT PENDING #953, #960</div>
+            <div class="status-bar">HUB: <span class="lbl-hub" style="color:#F2F2F2;">HUB_ALPHA</span> | PATENT PENDING</div>
         </div>
     </header>
 
-    <!-- Вкладка 1: OPERATIONAL VIEW (EDGE + FOG) -->
+    <!-- OPERATIONAL VIEW -->
     <div id="section-operational" class="view-section">
         
-        <!-- МОДУЛЬ A: EDGE NODE (ТЕЛЕФОН ВОДІЯ) -->
+        <!-- МОДУЛЬ A: ВОДІЙ (EDGE) -->
         <div class="panel" style="flex: 0.8;">
             <div class="panel-header">
-                <span>MOD A: EDGE (DRIVER)</span>
+                <span>MOD A: DRIVER (EDGE)</span>
                 <span id="driver-sim-label">HW: BYOD</span>
             </div>
             <div class="panel-content" style="padding:0; justify-content:center;">
@@ -248,40 +249,40 @@
                         <div class="text-huge">STOP</div>
                         <div class="text-sub">GEOFENCE LOCK ACTIVE<br>DO NOT APPROACH <span class="lbl-bay">BAY</span></div>
                         <button style="border-color: white; color: white;" onclick="ack()">ACKNOWLEDGE</button>
-                        <div class="hardware-footer">T_COUNT: CALCULATING...<br>SYS_STATE: <span class="lbl-bay">BAY</span>_BUSY</div>
+                        <div class="hardware-footer">T_COUNT: CALCULATING...<br>STATE: <span class="lbl-bay">BAY</span>_BUSY</div>
                     </div>
 
                     <div id="view-proceed" class="screen-content hidden bg-green">
                         <div class="text-huge">PROCEED</div>
-                        <div class="text-sub"><span class="lbl-bay">BAY</span> READY<br>DLR TIMING: JIT MATCHED</div>
+                        <div class="text-sub"><span class="lbl-bay">BAY</span> READY<br>TIMING: JIT MATCHED</div>
                         <button style="border-color: var(--deep-navy); color: var(--deep-navy);" onclick="ack()">ACKNOWLEDGE</button>
-                        <div class="hardware-footer">H_POP: VERIFIED via IMU<br>SYS_STATE: <span class="lbl-bay">BAY</span>_READY</div>
+                        <div class="hardware-footer">H_POP: VERIFIED via IMU<br>STATE: <span class="lbl-bay">BAY</span>_READY</div>
                     </div>
 
                     <div id="view-shredded" class="screen-content hidden bg-shredded">
                         <div class="text-huge glitch">∅</div>
                         <div class="text-sub glitch">T ⊕ N_hw ≡ ∅<br>SESSION TERMINATED</div>
-                        <div class="hardware-footer">GNSS: SLEEP<br>NETWORK: SEVERED</div>
+                        <div class="hardware-footer">GNSS: DEEP SLEEP<br>NETWORK: SEVERED</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- МОДУЛЬ B: FOG NODE (ПЛАНШЕТ АДМІНА) -->
+        <!-- МОДУЛЬ B: АДМІНІСТРАТОР (FOG) -->
         <div class="panel" style="flex: 1.2;">
             <div class="panel-header">
-                <span>MOD B: FOG (HUB ADMIN TERMINAL)</span>
+                <span>MOD B: FACILITY TERMINAL (FOG)</span>
                 <span>WS: SECURE</span>
             </div>
             <div class="tablet-frame">
                 <div class="hw-status-bar" style="padding: 10px 15px;">
-                    <span><span class="lbl-hub">LCY2</span> GATEWAY ORCHESTRATOR</span>
+                    <span>ORCHESTRATOR <span class="lbl-hub">HUB_ALPHA</span></span>
                     <span style="color: var(--proceed-green);">ONLINE</span>
                 </div>
 
                 <div class="admin-lists-container">
                     
-                    <!-- 3 ГОЛОВНІ КНОПКИ УПРАВЛІННЯ (ДЛЯ ВИБРАНОЇ ФУРИ) -->
+                    <!-- КНОПКИ КЕРУВАННЯ -->
                     <div id="fog-no-active" style="color: #888; font-size: 0.7rem; text-align: center; padding: 20px; border: 1px dashed var(--grid-grey); margin-bottom: 5px;">
                         [ SELECT ASSET FROM QUEUE BELOW ]
                     </div>
@@ -289,7 +290,7 @@
                     <div id="fog-active-box" class="active-asset-box hidden">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
-                                <div style="font-size: 1.2rem; font-weight: 700;"><span class="lbl-veh">HGV</span> TOKEN: <span id="active-token-display" style="color: var(--data-white);">---</span></div>
+                                <div style="font-size: 1.2rem; font-weight: 700;"><span class="lbl-veh">TRUCK</span> TOKEN: <span id="active-token-display" style="color: var(--data-white);">---</span></div>
                                 <div style="font-size: 0.7rem; color: #888; margin-bottom: 15px;">CARGO: <span id="active-cargo-display">---</span> | D_REF: a7x9...</div>
                             </div>
                             <div style="font-size: 0.8rem; font-weight: 700; color: var(--safety-orange);" id="active-status-display">PENDING</div>
@@ -297,10 +298,10 @@
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                             <button class="btn-red" style="padding: 15px;" onclick="adminSetState('BOUND')">
-                                HOLD ASSET<br><span style="font-size: 0.6rem; opacity: 0.7;">(SET STATE: RED)</span>
+                                HOLD ASSET<br><span style="font-size: 0.6rem; opacity: 0.7;">(STATE: RED)</span>
                             </button>
                             <button class="btn-green" style="padding: 15px;" onclick="adminSetState('CALLED')">
-                                CALL TO <span class="lbl-bay">BAY</span><br><span style="font-size: 0.6rem; opacity: 0.7;">(SET STATE: GREEN)</span>
+                                CALL TO <span class="lbl-bay">BAY</span><br><span style="font-size: 0.6rem; opacity: 0.7;">(STATE: GREEN)</span>
                             </button>
                         </div>
                         <button class="btn-orange" onclick="adminShred()" style="border-style: dashed; padding: 15px; width: 100%;">
@@ -308,22 +309,22 @@
                         </button>
                     </div>
 
-                    <!-- ACTIVE ASSETS (В РОБОТІ) -->
+                    <!-- АКТИВНІ АКТИВИ -->
                     <div class="list-section-title">ACTIVE ASSETS (ON MAP)</div>
                     <div id="admin-active-list" style="margin-bottom: 5px;">
-                        <!-- JS renders here -->
+                        <!-- Рендериться через JS -->
                     </div>
 
-                    <!-- PENDING QUEUE (ЧЕРГА) -->
+                    <!-- ЧЕРГА -->
                     <div class="list-section-title">PENDING QUEUE</div>
                     <div id="admin-pending-list" style="margin-bottom: 5px;">
-                        <!-- JS renders here -->
+                        <!-- Рендериться через JS -->
                     </div>
 
-                    <!-- COMPLETED (АРХІВ) -->
-                    <div class="list-section-title" style="color: #888; margin-top: 10px;">COMPLETED ARCHIVE</div>
+                    <!-- АРХІВ -->
+                    <div class="list-section-title" style="color: #888; margin-top: 10px;">COMPLETED SESSIONS ARCHIVE</div>
                     <div id="admin-archive-list">
-                        <!-- JS renders here -->
+                        <!-- Рендериться через JS -->
                     </div>
 
                 </div>
@@ -331,20 +332,20 @@
         </div>
     </div>
 
-    <!-- Вкладка 2: GLOBAL VIEW (CLOUD) -->
+    <!-- ГЛОБАЛЬНИЙ ВИД -->
     <div id="section-global" class="view-section hidden-view">
         
-        <!-- МОДУЛЬ C: CLOUD DASHBOARD -->
+        <!-- МОДУЛЬ C: CLOUD -->
         <div class="panel">
             <div class="panel-header">
-                <span>MOD C: CLOUD (LOGISTICIAN DASHBOARD)</span>
-                <span>GLOBAL ASSET VISIBILITY</span>
+                <span>MOD C: LOGISTICIAN DASHBOARD (CLOUD)</span>
+                <span>REAL-TIME FLEET MONITORING</span>
             </div>
             <div class="panel-content" style="padding: 20px;">
                 <div class="dashboard-layout">
                     
                     <div class="data-table-container">
-                        <div style="font-size: 1.1rem; margin-bottom: 15px; font-weight: 700; color: var(--safety-orange);">LIVE FLEET METRICS</div>
+                        <div style="font-size: 1.1rem; margin-bottom: 15px; font-weight: 700; color: var(--safety-orange);">FLEET METRICS</div>
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -357,16 +358,16 @@
                                 </tr>
                             </thead>
                             <tbody id="cloud-table-body">
-                                <!-- JS will populate -->
+                                <!-- Рендериться через JS -->
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- LEAFLET КАРТА -->
+                    <!-- КАРТА -->
                     <div class="map-container">
                         <div id="leaflet-map"></div>
                         <div style="position: absolute; top: 15px; left: 50px; font-size: 0.8rem; color: var(--data-white); background: rgba(10, 17, 40, 0.8); padding: 8px; border: 1px solid var(--safety-orange); z-index: 1000;">
-                            VIRTUAL BUFFER (<span class="lbl-city" style="color: var(--safety-orange); font-weight: bold;">LONDON</span>): 25 <span class="lbl-dist">KM</span>
+                            VIRTUAL BUFFER (<span class="lbl-city" style="color: var(--safety-orange); font-weight: bold;">HUB_ZONE</span>): 25 <span class="lbl-dist">KM</span> | PATENT PENDING
                         </div>
                     </div>
 
@@ -377,40 +378,40 @@
     </div>
 
     <script>
-        // СЛОВНИК UADG
+        // СЛОВНИК UADG ДЛЯ АДАПТАЦІЇ ДАНИХ
         const dict = {
-            'UK': { hub: 'LCY2', veh: 'HGV', bay: 'BAY', curr: '£', timez: 'BST', dist: 'KM', city: 'LONDON',
+            'UK': { hub: 'HUB_ALPHA', veh: 'HGV', bay: 'BAY', curr: '£', timez: 'BST', dist: 'KM', city: 'LONDON_ZONE',
                 coords: [51.46, 0.25], startCoords: [51.58, 0.05], bufferRadius: 25000 },
-            'USA': { hub: 'JFK8', veh: 'TRUCK', bay: 'DOCK', curr: '$', timez: 'EST', dist: 'MILES', city: 'NEW YORK',
+            'USA': { hub: 'HUB_BETA', veh: 'TRUCK', bay: 'DOCK', curr: '$', timez: 'EST', dist: 'MILES', city: 'NY_ZONE',
                 coords: [40.54, -74.18], startCoords: [40.75, -74.35], bufferRadius: 40233 }
         };
 
-        // БАЗА ДАНИХ
+        // ДАНІ ФЛОТУ (State Machine)
         let fleetData = [
-            { id: '8A9B2C', cargo: 'Consumer Elec.', valUK: '145k', valUS: '180k', tacho: '8h 45m (LOW)', eta: '14:00', status: 'PENDING', lat: 0, lng: 0 },
+            { id: '8A9B2C', cargo: 'Electronics', valUK: '145k', valUS: '180k', tacho: '8h 45m (CRIT)', eta: '14:00', status: 'PENDING', lat: 0, lng: 0 },
             { id: '9F2X11', cargo: 'Apparel', valUK: '22k', valUS: '28k', tacho: '3h 10m', eta: '15:30', status: 'PENDING', lat: 0, lng: 0 },
-            { id: '4D7C99', cargo: 'Perishables', valUK: '8.5k', valUS: '10.5k', tacho: '1h 05m', eta: '16:15', status: 'PENDING', lat: 0, lng: 0 },
+            { id: '4D7C99', cargo: 'Food', valUK: '8.5k', valUS: '10.5k', tacho: '1h 05m', eta: '16:15', status: 'PENDING', lat: 0, lng: 0 },
             { id: '7X8M22', cargo: 'Industrial', valUK: '89k', valUS: '110k', tacho: '4h 20m', eta: '18:00', status: 'PENDING', lat: 0, lng: 0 },
-            { id: '1P5R88', cargo: 'Medical', valUK: '210k', valUS: '260k', tacho: '6h 15m', eta: '19:30', status: 'PENDING', lat: 0, lng: 0 },
-            { id: '3M1V77', cargo: 'Hardware', valUK: '35k', valUS: '45k', tacho: '2h 10m', eta: '20:15', status: 'PENDING', lat: 0, lng: 0 }
+            { id: '1P5R88', cargo: 'Medical', valUK: '210k', valUS: '260k', tacho: '6h 15m', eta: '19:30', status: 'PENDING', lat: 0, lng: 0 }
         ];
 
         let currentRegion = 'UK';
-        let activeToken = null; // Фура, вибрана для 3 головних кнопок адміна
-        let driverCurrentToken = null; // Фура, відображена в телефоні водія
+        let activeToken = null;
+        let driverCurrentToken = null;
         let map, hubMarker, bufferCircle;
         let mapMarkers = {}; 
 
         window.onload = () => {
             initMap();
             renderUI();
+            // Симуляція оновлення щосекунди
             setInterval(simulationTick, 1000);
         };
 
-        // ГОЛОВНИЙ РЕНДЕР ІНТЕРФЕЙСУ
         function renderUI() {
             const d = dict[currentRegion];
             
+            // Оновлення лейблів згідно з регіоном
             document.querySelectorAll('.lbl-hub').forEach(el => el.innerText = d.hub);
             document.querySelectorAll('.lbl-veh').forEach(el => el.innerText = d.veh);
             document.querySelectorAll('.lbl-bay').forEach(el => el.innerText = d.bay);
@@ -419,7 +420,7 @@
             document.querySelectorAll('.lbl-dist').forEach(el => el.innerText = d.dist);
             document.querySelectorAll('.lbl-city').forEach(el => el.innerText = d.city);
 
-            // 1. Оновлення FOG NODE (Списки адміна)
+            // Списки адмін-панелі
             const activeList = document.getElementById('admin-active-list');
             const pendingList = document.getElementById('admin-pending-list');
             const archiveList = document.getElementById('admin-archive-list');
@@ -443,7 +444,7 @@
                                 <div class="admin-item-meta">CARGO: ${truck.cargo} | ETA: ${truck.eta}</div>
                             </div>
                             <div style="color: ${isGreen ? 'var(--proceed-green)' : 'var(--alert-red)'}; font-size:0.65rem; font-weight:700;">
-                                ${isGreen ? 'APPROACHING' : 'HOLDING'}
+                                ${isGreen ? 'ARRIVING' : 'BUFFERED'}
                             </div>
                         </div>
                     `;
@@ -471,7 +472,7 @@
                         <div class="admin-item-header">
                             <div>
                                 <div class="admin-item-title" style="text-decoration: line-through;">${d.veh}: ${truck.id}</div>
-                                <div class="admin-item-meta">T ⊕ N_hw ≡ ∅ EXECUTED</div>
+                                <div class="admin-item-meta">SESSION DELETED</div>
                             </div>
                             <div style="color: #888; font-size:0.65rem;">ARCHIVED</div>
                         </div>
@@ -484,7 +485,7 @@
             if(!hasPending) pendingList.innerHTML = '<div style="color:#888; font-size:0.65rem; padding:5px;">QUEUE IS EMPTY.</div>';
             if(!hasArchive) archiveList.innerHTML = '<div style="color:#888; font-size:0.65rem; padding:5px;">NO ARCHIVED RECORDS.</div>';
 
-            // 2. Оновлення 3 ГОЛОВНИХ КНОПОК
+            // Оновлення панелі керування активним токеном
             if(activeToken) {
                 const activeData = fleetData.find(t => t.id === activeToken);
                 document.getElementById('fog-no-active').classList.add('hidden');
@@ -493,8 +494,8 @@
                 document.getElementById('active-cargo-display').innerText = activeData.cargo;
                 
                 let sColor = '#888'; let sText = 'PENDING';
-                if(activeData.status === 'BOUND') { sColor = 'var(--alert-red)'; sText = 'HOLDING (RED)'; }
-                if(activeData.status === 'CALLED') { sColor = 'var(--proceed-green)'; sText = 'APPROACHING (GREEN)'; }
+                if(activeData.status === 'BOUND') { sColor = 'var(--alert-red)'; sText = 'HELD (RED)'; }
+                if(activeData.status === 'CALLED') { sColor = 'var(--proceed-green)'; sText = 'CALLED (GREEN)'; }
                 document.getElementById('active-status-display').innerText = sText;
                 document.getElementById('active-status-display').style.color = sColor;
             } else {
@@ -502,53 +503,47 @@
                 document.getElementById('fog-active-box').classList.add('hidden');
             }
 
-            // 3. Оновлення CLOUD DASHBOARD
+            // Таблиця в Хмарі
             const tbody = document.getElementById('cloud-table-body');
             tbody.innerHTML = '';
-            
             fleetData.forEach(truck => {
                 const tr = document.createElement('tr');
                 if(truck.status === 'BOUND') tr.className = 'row-bound';
                 if(truck.status === 'CALLED') tr.className = 'row-called';
                 if(truck.status === 'SHREDDED') tr.className = 'row-shredded';
 
-                let zStatus = 'AWAITING BINDING';
+                let zStatus = 'AWAITING INPUT';
                 if(truck.status === 'BOUND') zStatus = 'BUFFERED (HOLD)';
-                if(truck.status === 'CALLED') zStatus = 'APPROACHING DOCK';
+                if(truck.status === 'CALLED') zStatus = 'APPROACHING HUB';
                 if(truck.status === 'SHREDDED') zStatus = 'SHREDDED (ZERO TRK)';
 
                 const val = currentRegion === 'UK' ? truck.valUK : truck.valUS;
-
                 tr.innerHTML = `
                     <td>${d.veh}-${truck.id}</td>
                     <td>${truck.cargo}</td>
                     <td>${d.curr}${val}</td>
-                    <td style="${truck.tacho.includes('LOW') ? 'color:var(--alert-red);font-weight:700;' : ''}">${truck.tacho}</td>
+                    <td style="${truck.tacho.includes('CRIT') ? 'color:var(--alert-red);font-weight:700;' : ''}">${truck.tacho}</td>
                     <td>${truck.eta}</td>
                     <td style="color:${truck.status==='CALLED'?'var(--proceed-green)': (truck.status==='BOUND'?'var(--alert-red)':'')}">${zStatus}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // 4. Оновлення EDGE NODE
             renderDriverUI();
         }
 
-        // ЛОГІКА ВИБОРУ ФУРИ
         function focusToken(id) {
             activeToken = id;
-            driverCurrentToken = id; // Синхронізуємо телефон водія для симуляції
+            driverCurrentToken = id; // Синхронізація для симуляції
             document.getElementById('token-input').value = id;
             renderUI();
         }
 
-        // ЛОГІКА КНОПОК АДМІНА
         function adminSetState(newState) {
             if(!activeToken) return;
             const truck = fleetData.find(t => t.id === activeToken);
             if(!truck) return;
 
-            // Якщо вона була Pending, створюємо її на карті
             if (truck.status === 'PENDING') {
                 const d = dict[currentRegion];
                 truck.lat = d.startCoords[0] + (Math.random() * 0.02 - 0.01);
@@ -557,13 +552,10 @@
             }
 
             truck.status = newState;
-            
-            // Зміна кольору маркера
             if(mapMarkers[activeToken]) {
                 const iconClass = newState === 'CALLED' ? 'map-truck-icon green' : 'map-truck-icon';
                 mapMarkers[activeToken].setIcon(L.divIcon({ className: iconClass, iconSize: [12, 12] }));
             }
-            
             renderUI();
         }
 
@@ -574,9 +566,8 @@
 
             truck.status = 'SHREDDED';
             const shredId = activeToken;
-            activeToken = null; // Очищаємо панель керування
+            activeToken = null; 
 
-            // Знищення маркера на карті
             if(mapMarkers[shredId]) {
                 mapMarkers[shredId].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [12, 12] }));
                 setTimeout(() => { 
@@ -586,48 +577,36 @@
                     }
                 }, 500);
             }
-            
             renderUI();
-        }
-
-        // ЛОГІКА EDGE NODE
-        function hideAllMobileViews() {
-            document.getElementById('view-binding').classList.add('hidden');
-            document.getElementById('view-stop').classList.add('hidden');
-            document.getElementById('view-proceed').classList.add('hidden');
-            document.getElementById('view-shredded').classList.add('hidden');
         }
 
         function driverSubmitToken() {
             const input = document.getElementById('token-input').value.toUpperCase();
             const truck = fleetData.find(t => t.id === input);
             if(!truck) return;
-            
             driverCurrentToken = input;
             activeToken = input;
-            
-            if (truck.status === 'PENDING') {
-                adminSetState('BOUND'); // Автоматично HOLD при першому конекті
-            } else {
-                renderUI();
-            }
+            if (truck.status === 'PENDING') adminSetState('BOUND');
+            else renderUI();
         }
 
         function renderDriverUI() {
-            hideAllMobileViews();
+            const views = ['view-binding', 'view-stop', 'view-proceed', 'view-shredded'];
+            views.forEach(v => document.getElementById(v).classList.add('hidden'));
+            
             const hwGnss = document.getElementById('hw-gnss');
             const hwImu = document.getElementById('hw-imu');
 
             if (!driverCurrentToken) {
                 document.getElementById('view-binding').classList.remove('hidden');
-                document.getElementById('driver-sim-label').innerText = "HW: BYOD (NOT BOUND)";
+                document.getElementById('driver-sim-label').innerText = "HW: BYOD (UNBOUND)";
                 hwGnss.innerText = "GNSS: IDLE"; hwGnss.style.color = "#888";
                 hwImu.innerText = "IMU: STBY"; hwImu.style.color = "#888";
                 return;
             }
 
             const truck = fleetData.find(t => t.id === driverCurrentToken);
-            document.getElementById('driver-sim-label').innerText = `HW: BYOD [SIM: ${truck.id}]`;
+            document.getElementById('driver-sim-label').innerText = `HW: BYOD [ID: ${truck.id}]`;
 
             if (truck.status === 'BOUND') {
                 document.getElementById('view-stop').classList.remove('hidden');
@@ -643,8 +622,6 @@
                 document.getElementById('view-shredded').classList.remove('hidden');
                 hwGnss.innerText = "GNSS: SLEEP"; hwGnss.style.color = "var(--alert-red)";
                 hwImu.innerText = "IMU: SLEEP"; hwImu.style.color = "var(--alert-red)";
-                
-                // Очищення екрану водія через 3 сек
                 setTimeout(() => {
                     if(driverCurrentToken === truck.id) {
                         driverCurrentToken = null;
@@ -653,19 +630,13 @@
                     }
                 }, 3000);
             }
-            else if (truck.status === 'PENDING') {
-                document.getElementById('view-binding').classList.remove('hidden');
-                document.getElementById('driver-sim-label').innerText = "HW: BYOD (NOT BOUND)";
-            }
         }
 
-        // ЛОГІКА ПЕРЕМИКАННЯ ВКЛАДОК/РЕГІОНІВ
         function switchView(viewName) {
             document.getElementById('btn-view-op').classList.remove('active');
             document.getElementById('btn-view-gl').classList.remove('active');
             document.getElementById('section-operational').classList.add('hidden-view');
             document.getElementById('section-global').classList.add('hidden-view');
-
             if(viewName === 'operational') {
                 document.getElementById('btn-view-op').classList.add('active');
                 document.getElementById('section-operational').classList.remove('hidden-view');
@@ -681,23 +652,17 @@
             document.getElementById('btn-uk').classList.remove('active');
             document.getElementById('btn-usa').classList.remove('active');
             document.getElementById(region === 'UK' ? 'btn-uk' : 'btn-usa').classList.add('active');
-
             const d = dict[region];
             map.setView(d.coords, 10);
-            bufferCircle.setLatLng(d.coords);
-            bufferCircle.setRadius(d.bufferRadius);
+            bufferCircle.setLatLng(d.coords).setRadius(d.bufferRadius);
             hubMarker.setLatLng(d.coords);
-            
-            // Скидання симуляції
             Object.values(mapMarkers).forEach(m => map.removeLayer(m));
             mapMarkers = {};
             fleetData.forEach(t => t.status = 'PENDING');
             activeToken = null; driverCurrentToken = null;
-            document.getElementById('token-input').value = "";
             renderUI();
         }
 
-        // КАРТА
         function initMap() {
             const data = dict[currentRegion];
             map = L.map('leaflet-map', { zoomControl: false, attributionControl: false }).setView(data.coords, 10);
