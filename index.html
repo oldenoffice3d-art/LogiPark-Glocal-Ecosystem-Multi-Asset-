@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiPark ZVL | Glocal Multi-Asset Sim</title>
+    
+    <!-- LEAFLET.JS ДЛЯ СИМУЛЯЦІЇ КАРТИ -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        /* ВІЗУАЛЬНА ДНК LOGIPARK */
+        :root {
+            --deep-navy: #0A1128;
+            --safety-orange: #FF9F1C;
+            --grid-grey: #2B2D42;
+            --data-white: #F2F2F2;
+            --alert-red: #D90429;
+            --proceed-green: #2A9D8F;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* СУВОРО: ЖОДНИХ ЗАКРУГЛЕНЬ */
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        body {
+            background-color: var(--deep-navy);
+            color: var(--data-white);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(var(--grid-grey) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-grey) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--deep-navy);
+            border-bottom: 2px solid var(--safety-orange);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: 2px; color: var(--data-white); flex: 1; }
+        .logo span { color: var(--safety-orange); }
+        
+        .view-toggle { display: flex; gap: 0; flex: 2; justify-content: center; }
+
+        .btn-view {
+            background-color: transparent; color: var(--grid-grey); border: 1px solid var(--grid-grey);
+            padding: 8px 30px; cursor: pointer; font-weight: 700; letter-spacing: 1px; transition: all 0.2s;
+        }
+        .btn-view.active { background-color: var(--safety-orange); color: var(--deep-navy); border-color: var(--safety-orange); }
+
+        .header-controls { display: flex; flex-direction: column; align-items: flex-end; flex: 1; gap: 5px; }
+        .region-toggle { display: flex; gap: 8px; align-items: center; }
+
+        .btn-region {
+            background-color: transparent; color: #888; border: 1px solid #888;
+            padding: 4px 12px; font-size: 0.75rem; cursor: pointer; font-weight: 700; transition: all 0.3s;
+        }
+        .btn-region:hover { border-color: var(--safety-orange); color: var(--safety-orange); }
+        .btn-region.active {
+            background-color: var(--safety-orange); color: var(--deep-navy);
+            border-color: var(--safety-orange); box-shadow: 0 0 12px rgba(255, 159, 28, 0.6);
+        }
+
+        .status-bar { font-size: 0.7rem; color: var(--safety-orange); }
+
+        /* MAIN SECTIONS */
+        .view-section { display: flex; flex: 1; padding: 20px; gap: 20px; overflow: hidden; width: 100%; }
+        .hidden-view { display: none !important; }
+
+        /* PANELS */
+        .panel {
+            background-color: rgba(10, 17, 40, 0.95); border: 1px solid var(--grid-grey);
+            display: flex; flex-direction: column; position: relative; flex: 1;
+        }
+        .panel-header {
+            background-color: var(--grid-grey); padding: 10px; font-size: 0.8rem;
+            font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid var(--safety-orange);
+            display: flex; justify-content: space-between;
+        }
+
+        /* FOG NODE (ADMIN TABLET) STYLES */
+        .tablet-frame {
+            width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .admin-lists-container {
+            display: flex; flex-direction: column; gap: 10px; padding: 10px 15px; overflow-y: auto; flex: 1;
+        }
+        .list-section-title {
+            font-size: 0.7rem; color: var(--safety-orange); border-bottom: 1px solid var(--grid-grey);
+            padding-bottom: 3px; margin-bottom: 5px; font-weight: 700;
+        }
+        
+        .admin-item {
+            border: 1px solid var(--grid-grey); background: rgba(43, 45, 66, 0.3);
+            padding: 6px 10px; margin-bottom: 5px; display: flex; flex-direction: column; gap: 4px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .admin-item:hover { border-color: var(--safety-orange); }
+        .admin-item.selected { border-color: var(--safety-orange); background: rgba(255, 159, 28, 0.1); border-left: 3px solid var(--safety-orange); }
+
+        .admin-item-header { display: flex; justify-content: space-between; align-items: center; }
+        .admin-item-title { font-weight: 700; font-size: 0.85rem; color: var(--data-white); }
+        .admin-item-meta { font-size: 0.6rem; color: #888; }
+        
+        .admin-item.active-red { border-left: 3px solid var(--alert-red); }
+        .admin-item.active-green { border-left: 3px solid var(--proceed-green); }
+        .admin-item.completed { opacity: 0.4; border-color: transparent; border-left: 3px solid #888; cursor: default; }
+        .admin-item.completed:hover { border-color: transparent; }
+
+        .active-asset-box {
+            width: 100%; border: 1px solid var(--safety-orange); padding: 15px; margin-bottom: 5px;
+            background: rgba(255, 159, 28, 0.05); text-align: left;
+        }
+
+        /* EDGE NODE (DRIVER) STYLES */
+        .mobile-frame {
+            width: 100%; max-width: 320px; height: 580px; border: 2px solid var(--grid-grey);
+            background-color: var(--deep-navy); position: relative;
+            display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.5); margin: auto;
+        }
+        .hw-status-bar {
+            font-size: 0.65rem; padding: 5px; border-bottom: 1px solid var(--grid-grey);
+            display: flex; justify-content: space-between; color: #888; min-height: 25px;
+        }
+        .screen-content {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; padding: 20px; text-align: center; transition: background-color 0.2s;
+        }
+
+        /* CLOUD DASHBOARD */
+        .dashboard-layout { width: 100%; height: 100%; display: flex; flex-direction: row; gap: 20px; }
+        .data-table-container { flex: 1.5; display: flex; flex-direction: column; overflow-y: auto; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .data-table th, .data-table td { border: 1px solid var(--grid-grey); padding: 10px; text-align: left; }
+        .data-table th { color: var(--safety-orange); background-color: rgba(43, 45, 66, 0.5); position: sticky; top: 0; }
+        .data-table tr.row-bound { border-left: 3px solid var(--alert-red); background-color: rgba(217, 4, 41, 0.05); }
+        .data-table tr.row-called { border-left: 3px solid var(--proceed-green); background-color: rgba(42, 157, 143, 0.05); }
+        .data-table tr.row-shredded { opacity: 0.4; text-decoration: line-through; }
+
+        /* MAP */
+        .map-container { flex: 1; border: 1px solid var(--grid-grey); position: relative; background-color: var(--deep-navy); z-index: 1; }
+        #leaflet-map { width: 100%; height: 100%; background-color: var(--deep-navy); }
+        .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution {
+            filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) grayscale(80%);
+        }
+        .map-hub-icon { background-color: rgba(255, 159, 28, 0.2); border: 2px solid var(--safety-orange); color: var(--safety-orange); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold; text-shadow: 0 0 5px #000; }
+        
+        .map-truck-icon { background-color: var(--alert-red); border: 1px solid #fff; width: 12px; height: 12px; box-shadow: 0 0 10px var(--alert-red); transition: all 0.3s; }
+        .map-truck-icon.green { background-color: var(--proceed-green); box-shadow: 0 0 10px var(--proceed-green); }
+
+        /* BUTTONS */
+        button { background-color: transparent; color: var(--data-white); border: 1px solid var(--grid-grey); padding: 8px 12px; cursor: pointer; font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; transition: all 0.2s; }
+        button:hover { border-color: var(--safety-orange); color: var(--safety-orange); }
+        
+        .btn-green { background-color: rgba(42, 157, 143, 0.1); border-color: var(--proceed-green); color: var(--proceed-green); }
+        .btn-green:hover { background-color: var(--proceed-green); color: var(--deep-navy); }
+        
+        .btn-red { background-color: rgba(217, 4, 41, 0.1); border-color: var(--alert-red); color: var(--alert-red); }
+        .btn-red:hover { background-color: var(--alert-red); color: var(--deep-navy); }
+        
+        .btn-orange { background-color: rgba(255, 159, 28, 0.1); border-color: var(--safety-orange); color: var(--safety-orange); width: 100%; padding: 12px; }
+        .btn-orange:hover { background-color: var(--safety-orange); color: var(--deep-navy); }
+
+        .btn-small { padding: 5px 10px; font-size: 0.65rem; }
+
+        input { background-color: transparent; border: 1px solid var(--grid-grey); color: var(--safety-orange); padding: 10px; font-size: 1.2rem; text-align: center; width: 100%; margin-bottom: 15px; outline: none; }
+
+        .bg-red { background-color: var(--alert-red) !important; color: var(--data-white) !important; }
+        .bg-green { background-color: var(--proceed-green) !important; color: var(--deep-navy) !important; font-weight: 700; }
+        .bg-shredded { background-color: #000 !important; color: var(--safety-orange) !important; }
+
+        .text-huge { font-size: 2.5rem; font-weight: 700; margin-bottom: 5px; }
+        .text-sub { font-size: 0.75rem; opacity: 0.8; margin-bottom: 20px; }
+        .hardware-footer { margin-top: auto; width: 100%; font-size: 0.6rem; text-align: left; border-top: 1px solid currentColor; padding-top: 5px; }
+
+        .glitch { animation: glitch-anim 0.2s linear infinite; }
+        @keyframes glitch-anim {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">LOGIPARK<span>_</span>ZVL</div>
+        <div class="view-toggle">
+            <button class="btn-view active" onclick="switchView('operational')" id="btn-view-op">OPERATIONAL (EDGE/FOG)</button>
+            <button class="btn-view" onclick="switchView('global')" id="btn-view-gl">GLOBAL (CLOUD)</button>
+        </div>
+        <div class="header-controls">
+            <div class="region-toggle">
+                <button class="btn-region active" onclick="switchRegion('UK')" id="btn-uk">UK DEPLOYMENT</button>
+                <button class="btn-region" onclick="switchRegion('USA')" id="btn-usa">USA DEPLOYMENT</button>
+            </div>
+            <div class="status-bar">HUB: <span class="lbl-hub" style="color:#F2F2F2;">LCY2</span> | PATENT PENDING #953, #960</div>
+        </div>
+    </header>
+
+    <!-- Вкладка 1: OPERATIONAL VIEW (EDGE + FOG) -->
+    <div id="section-operational" class="view-section">
+        
+        <!-- МОДУЛЬ A: EDGE NODE (ТЕЛЕФОН ВОДІЯ) -->
+        <div class="panel" style="flex: 0.8;">
+            <div class="panel-header">
+                <span>MOD A: EDGE (DRIVER)</span>
+                <span id="driver-sim-label">HW: BYOD</span>
+            </div>
+            <div class="panel-content" style="padding:0; justify-content:center;">
+                <div class="mobile-frame">
+                    <div class="hw-status-bar">
+                        <span id="hw-gnss">GNSS: IDLE</span>
+                        <span id="hw-imu">IMU: STBY</span>
+                    </div>
+                    
+                    <div id="view-binding" class="screen-content">
+                        <div class="text-sub">AWAITING BINDING TOKEN</div>
+                        <input type="text" id="token-input" placeholder="------" maxlength="6">
+                        <button class="btn-orange" onclick="driverSubmitToken()">INITIATE BINDING</button>
+                        <div class="hardware-footer">[AWAITING OPTICAL/UI INGESTION]</div>
+                    </div>
+
+                    <div id="view-stop" class="screen-content hidden bg-red">
+                        <div class="text-huge">STOP</div>
+                        <div class="text-sub">GEOFENCE LOCK ACTIVE<br>DO NOT APPROACH <span class="lbl-bay">BAY</span></div>
+                        <button style="border-color: white; color: white;" onclick="ack()">ACKNOWLEDGE</button>
+                        <div class="hardware-footer">T_COUNT: CALCULATING...<br>SYS_STATE: <span class="lbl-bay">BAY</span>_BUSY</div>
+                    </div>
+
+                    <div id="view-proceed" class="screen-content hidden bg-green">
+                        <div class="text-huge">PROCEED</div>
+                        <div class="text-sub"><span class="lbl-bay">BAY</span> READY<br>DLR TIMING: JIT MATCHED</div>
+                        <button style="border-color: var(--deep-navy); color: var(--deep-navy);" onclick="ack()">ACKNOWLEDGE</button>
+                        <div class="hardware-footer">H_POP: VERIFIED via IMU<br>SYS_STATE: <span class="lbl-bay">BAY</span>_READY</div>
+                    </div>
+
+                    <div id="view-shredded" class="screen-content hidden bg-shredded">
+                        <div class="text-huge glitch">∅</div>
+                        <div class="text-sub glitch">T ⊕ N_hw ≡ ∅<br>SESSION TERMINATED</div>
+                        <div class="hardware-footer">GNSS: SLEEP<br>NETWORK: SEVERED</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- МОДУЛЬ B: FOG NODE (ПЛАНШЕТ АДМІНА) -->
+        <div class="panel" style="flex: 1.2;">
+            <div class="panel-header">
+                <span>MOD B: FOG (HUB ADMIN TERMINAL)</span>
+                <span>WS: SECURE</span>
+            </div>
+            <div class="tablet-frame">
+                <div class="hw-status-bar" style="padding: 10px 15px;">
+                    <span><span class="lbl-hub">LCY2</span> GATEWAY ORCHESTRATOR</span>
+                    <span style="color: var(--proceed-green);">ONLINE</span>
+                </div>
+
+                <div class="admin-lists-container">
+                    
+                    <!-- 3 ГОЛОВНІ КНОПКИ УПРАВЛІННЯ (ДЛЯ ВИБРАНОЇ ФУРИ) -->
+                    <div id="fog-no-active" style="color: #888; font-size: 0.7rem; text-align: center; padding: 20px; border: 1px dashed var(--grid-grey); margin-bottom: 5px;">
+                        [ SELECT ASSET FROM QUEUE BELOW ]
+                    </div>
+                    
+                    <div id="fog-active-box" class="active-asset-box hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <div style="font-size: 1.2rem; font-weight: 700;"><span class="lbl-veh">HGV</span> TOKEN: <span id="active-token-display" style="color: var(--data-white);">---</span></div>
+                                <div style="font-size: 0.7rem; color: #888; margin-bottom: 15px;">CARGO: <span id="active-cargo-display">---</span> | D_REF: a7x9...</div>
+                            </div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--safety-orange);" id="active-status-display">PENDING</div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                            <button class="btn-red" style="padding: 15px;" onclick="adminSetState('BOUND')">
+                                HOLD ASSET<br><span style="font-size: 0.6rem; opacity: 0.7;">(SET STATE: RED)</span>
+                            </button>
+                            <button class="btn-green" style="padding: 15px;" onclick="adminSetState('CALLED')">
+                                CALL TO <span class="lbl-bay">BAY</span><br><span style="font-size: 0.6rem; opacity: 0.7;">(SET STATE: GREEN)</span>
+                            </button>
+                        </div>
+                        <button class="btn-orange" onclick="adminShred()" style="border-style: dashed; padding: 15px; width: 100%;">
+                            UNLOAD COMPLETE<br><span style="font-size: 0.6rem;">[EXECUTE CRYPTO-SHREDDING]</span>
+                        </button>
+                    </div>
+
+                    <!-- ACTIVE ASSETS (В РОБОТІ) -->
+                    <div class="list-section-title">ACTIVE ASSETS (ON MAP)</div>
+                    <div id="admin-active-list" style="margin-bottom: 5px;">
+                        <!-- JS renders here -->
+                    </div>
+
+                    <!-- PENDING QUEUE (ЧЕРГА) -->
+                    <div class="list-section-title">PENDING QUEUE</div>
+                    <div id="admin-pending-list" style="margin-bottom: 5px;">
+                        <!-- JS renders here -->
+                    </div>
+
+                    <!-- COMPLETED (АРХІВ) -->
+                    <div class="list-section-title" style="color: #888; margin-top: 10px;">COMPLETED ARCHIVE</div>
+                    <div id="admin-archive-list">
+                        <!-- JS renders here -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка 2: GLOBAL VIEW (CLOUD) -->
+    <div id="section-global" class="view-section hidden-view">
+        
+        <!-- МОДУЛЬ C: CLOUD DASHBOARD -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>MOD C: CLOUD (LOGISTICIAN DASHBOARD)</span>
+                <span>GLOBAL ASSET VISIBILITY</span>
+            </div>
+            <div class="panel-content" style="padding: 20px;">
+                <div class="dashboard-layout">
+                    
+                    <div class="data-table-container">
+                        <div style="font-size: 1.1rem; margin-bottom: 15px; font-weight: 700; color: var(--safety-orange);">LIVE FLEET METRICS</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>TOKEN ID</th>
+                                    <th>CARGO TYPE</th>
+                                    <th>VALUE</th>
+                                    <th>TACHO (TTL)</th>
+                                    <th>ETA (<span class="lbl-timez">BST</span>)</th>
+                                    <th>ZVL STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cloud-table-body">
+                                <!-- JS will populate -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- LEAFLET КАРТА -->
+                    <div class="map-container">
+                        <div id="leaflet-map"></div>
+                        <div style="position: absolute; top: 15px; left: 50px; font-size: 0.8rem; color: var(--data-white); background: rgba(10, 17, 40, 0.8); padding: 8px; border: 1px solid var(--safety-orange); z-index: 1000;">
+                            VIRTUAL BUFFER (<span class="lbl-city" style="color: var(--safety-orange); font-weight: bold;">LONDON</span>): 25 <span class="lbl-dist">KM</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // СЛОВНИК UADG
+        const dict = {
+            'UK': { hub: 'LCY2', veh: 'HGV', bay: 'BAY', curr: '£', timez: 'BST', dist: 'KM', city: 'LONDON',
+                coords: [51.46, 0.25], startCoords: [51.58, 0.05], bufferRadius: 25000 },
+            'USA': { hub: 'JFK8', veh: 'TRUCK', bay: 'DOCK', curr: '$', timez: 'EST', dist: 'MILES', city: 'NEW YORK',
+                coords: [40.54, -74.18], startCoords: [40.75, -74.35], bufferRadius: 40233 }
+        };
+
+        // БАЗА ДАНИХ
+        let fleetData = [
+            { id: '8A9B2C', cargo: 'Consumer Elec.', valUK: '145k', valUS: '180k', tacho: '8h 45m (LOW)', eta: '14:00', status: 'PENDING', lat: 0, lng: 0 },
+            { id: '9F2X11', cargo: 'Apparel', valUK: '22k', valUS: '28k', tacho: '3h 10m', eta: '15:30', status: 'PENDING', lat: 0, lng: 0 },
+            { id: '4D7C99', cargo: 'Perishables', valUK: '8.5k', valUS: '10.5k', tacho: '1h 05m', eta: '16:15', status: 'PENDING', lat: 0, lng: 0 },
+            { id: '7X8M22', cargo: 'Industrial', valUK: '89k', valUS: '110k', tacho: '4h 20m', eta: '18:00', status: 'PENDING', lat: 0, lng: 0 },
+            { id: '1P5R88', cargo: 'Medical', valUK: '210k', valUS: '260k', tacho: '6h 15m', eta: '19:30', status: 'PENDING', lat: 0, lng: 0 },
+            { id: '3M1V77', cargo: 'Hardware', valUK: '35k', valUS: '45k', tacho: '2h 10m', eta: '20:15', status: 'PENDING', lat: 0, lng: 0 }
+        ];
+
+        let currentRegion = 'UK';
+        let activeToken = null; // Фура, вибрана для 3 головних кнопок адміна
+        let driverCurrentToken = null; // Фура, відображена в телефоні водія
+        let map, hubMarker, bufferCircle;
+        let mapMarkers = {}; 
+
+        window.onload = () => {
+            initMap();
+            renderUI();
+            setInterval(simulationTick, 1000);
+        };
+
+        // ГОЛОВНИЙ РЕНДЕР ІНТЕРФЕЙСУ
+        function renderUI() {
+            const d = dict[currentRegion];
+            
+            document.querySelectorAll('.lbl-hub').forEach(el => el.innerText = d.hub);
+            document.querySelectorAll('.lbl-veh').forEach(el => el.innerText = d.veh);
+            document.querySelectorAll('.lbl-bay').forEach(el => el.innerText = d.bay);
+            document.querySelectorAll('.lbl-curr').forEach(el => el.innerText = d.curr);
+            document.querySelectorAll('.lbl-timez').forEach(el => el.innerText = d.timez);
+            document.querySelectorAll('.lbl-dist').forEach(el => el.innerText = d.dist);
+            document.querySelectorAll('.lbl-city').forEach(el => el.innerText = d.city);
+
+            // 1. Оновлення FOG NODE (Списки адміна)
+            const activeList = document.getElementById('admin-active-list');
+            const pendingList = document.getElementById('admin-pending-list');
+            const archiveList = document.getElementById('admin-archive-list');
+            
+            activeList.innerHTML = ''; pendingList.innerHTML = ''; archiveList.innerHTML = '';
+            let hasActive = false, hasPending = false, hasArchive = false;
+
+            fleetData.forEach(truck => {
+                const item = document.createElement('div');
+                const isSelected = truck.id === activeToken;
+                
+                if (truck.status === 'BOUND' || truck.status === 'CALLED') {
+                    hasActive = true;
+                    const isGreen = truck.status === 'CALLED';
+                    item.className = `admin-item ${isGreen ? 'active-green' : 'active-red'} ${isSelected ? 'selected' : ''}`;
+                    item.onclick = () => focusToken(truck.id);
+                    item.innerHTML = `
+                        <div class="admin-item-header">
+                            <div>
+                                <div class="admin-item-title">${d.veh}: ${truck.id}</div>
+                                <div class="admin-item-meta">CARGO: ${truck.cargo} | ETA: ${truck.eta}</div>
+                            </div>
+                            <div style="color: ${isGreen ? 'var(--proceed-green)' : 'var(--alert-red)'}; font-size:0.65rem; font-weight:700;">
+                                ${isGreen ? 'APPROACHING' : 'HOLDING'}
+                            </div>
+                        </div>
+                    `;
+                    activeList.appendChild(item);
+                } 
+                else if (truck.status === 'PENDING') {
+                    hasPending = true;
+                    item.className = `admin-item ${isSelected ? 'selected' : ''}`;
+                    item.onclick = () => focusToken(truck.id);
+                    item.innerHTML = `
+                        <div class="admin-item-header">
+                            <div>
+                                <div class="admin-item-title" style="color:#aaa;">${d.veh}: ${truck.id}</div>
+                                <div class="admin-item-meta">CARGO: ${truck.cargo} | ETA: ${truck.eta}</div>
+                            </div>
+                            <div style="color: #888; font-size:0.65rem;">QUEUE</div>
+                        </div>
+                    `;
+                    pendingList.appendChild(item);
+                } 
+                else if (truck.status === 'SHREDDED') {
+                    hasArchive = true;
+                    item.className = `admin-item completed`;
+                    item.innerHTML = `
+                        <div class="admin-item-header">
+                            <div>
+                                <div class="admin-item-title" style="text-decoration: line-through;">${d.veh}: ${truck.id}</div>
+                                <div class="admin-item-meta">T ⊕ N_hw ≡ ∅ EXECUTED</div>
+                            </div>
+                            <div style="color: #888; font-size:0.65rem;">ARCHIVED</div>
+                        </div>
+                    `;
+                    archiveList.appendChild(item);
+                }
+            });
+
+            if(!hasActive) activeList.innerHTML = '<div style="color:#888; font-size:0.65rem; padding:5px;">NO ACTIVE ASSETS.</div>';
+            if(!hasPending) pendingList.innerHTML = '<div style="color:#888; font-size:0.65rem; padding:5px;">QUEUE IS EMPTY.</div>';
+            if(!hasArchive) archiveList.innerHTML = '<div style="color:#888; font-size:0.65rem; padding:5px;">NO ARCHIVED RECORDS.</div>';
+
+            // 2. Оновлення 3 ГОЛОВНИХ КНОПОК
+            if(activeToken) {
+                const activeData = fleetData.find(t => t.id === activeToken);
+                document.getElementById('fog-no-active').classList.add('hidden');
+                document.getElementById('fog-active-box').classList.remove('hidden');
+                document.getElementById('active-token-display').innerText = activeData.id;
+                document.getElementById('active-cargo-display').innerText = activeData.cargo;
+                
+                let sColor = '#888'; let sText = 'PENDING';
+                if(activeData.status === 'BOUND') { sColor = 'var(--alert-red)'; sText = 'HOLDING (RED)'; }
+                if(activeData.status === 'CALLED') { sColor = 'var(--proceed-green)'; sText = 'APPROACHING (GREEN)'; }
+                document.getElementById('active-status-display').innerText = sText;
+                document.getElementById('active-status-display').style.color = sColor;
+            } else {
+                document.getElementById('fog-no-active').classList.remove('hidden');
+                document.getElementById('fog-active-box').classList.add('hidden');
+            }
+
+            // 3. Оновлення CLOUD DASHBOARD
+            const tbody = document.getElementById('cloud-table-body');
+            tbody.innerHTML = '';
+            
+            fleetData.forEach(truck => {
+                const tr = document.createElement('tr');
+                if(truck.status === 'BOUND') tr.className = 'row-bound';
+                if(truck.status === 'CALLED') tr.className = 'row-called';
+                if(truck.status === 'SHREDDED') tr.className = 'row-shredded';
+
+                let zStatus = 'AWAITING BINDING';
+                if(truck.status === 'BOUND') zStatus = 'BUFFERED (HOLD)';
+                if(truck.status === 'CALLED') zStatus = 'APPROACHING DOCK';
+                if(truck.status === 'SHREDDED') zStatus = 'SHREDDED (ZERO TRK)';
+
+                const val = currentRegion === 'UK' ? truck.valUK : truck.valUS;
+
+                tr.innerHTML = `
+                    <td>${d.veh}-${truck.id}</td>
+                    <td>${truck.cargo}</td>
+                    <td>${d.curr}${val}</td>
+                    <td style="${truck.tacho.includes('LOW') ? 'color:var(--alert-red);font-weight:700;' : ''}">${truck.tacho}</td>
+                    <td>${truck.eta}</td>
+                    <td style="color:${truck.status==='CALLED'?'var(--proceed-green)': (truck.status==='BOUND'?'var(--alert-red)':'')}">${zStatus}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 4. Оновлення EDGE NODE
+            renderDriverUI();
+        }
+
+        // ЛОГІКА ВИБОРУ ФУРИ
+        function focusToken(id) {
+            activeToken = id;
+            driverCurrentToken = id; // Синхронізуємо телефон водія для симуляції
+            document.getElementById('token-input').value = id;
+            renderUI();
+        }
+
+        // ЛОГІКА КНОПОК АДМІНА
+        function adminSetState(newState) {
+            if(!activeToken) return;
+            const truck = fleetData.find(t => t.id === activeToken);
+            if(!truck) return;
+
+            // Якщо вона була Pending, створюємо її на карті
+            if (truck.status === 'PENDING') {
+                const d = dict[currentRegion];
+                truck.lat = d.startCoords[0] + (Math.random() * 0.02 - 0.01);
+                truck.lng = d.startCoords[1] + (Math.random() * 0.02 - 0.01);
+                createMapMarker(truck);
+            }
+
+            truck.status = newState;
+            
+            // Зміна кольору маркера
+            if(mapMarkers[activeToken]) {
+                const iconClass = newState === 'CALLED' ? 'map-truck-icon green' : 'map-truck-icon';
+                mapMarkers[activeToken].setIcon(L.divIcon({ className: iconClass, iconSize: [12, 12] }));
+            }
+            
+            renderUI();
+        }
+
+        function adminShred() {
+            if(!activeToken) return;
+            const truck = fleetData.find(t => t.id === activeToken);
+            if(!truck) return;
+
+            truck.status = 'SHREDDED';
+            const shredId = activeToken;
+            activeToken = null; // Очищаємо панель керування
+
+            // Знищення маркера на карті
+            if(mapMarkers[shredId]) {
+                mapMarkers[shredId].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [12, 12] }));
+                setTimeout(() => { 
+                    if(mapMarkers[shredId]) {
+                        map.removeLayer(mapMarkers[shredId]); 
+                        delete mapMarkers[shredId];
+                    }
+                }, 500);
+            }
+            
+            renderUI();
+        }
+
+        // ЛОГІКА EDGE NODE
+        function hideAllMobileViews() {
+            document.getElementById('view-binding').classList.add('hidden');
+            document.getElementById('view-stop').classList.add('hidden');
+            document.getElementById('view-proceed').classList.add('hidden');
+            document.getElementById('view-shredded').classList.add('hidden');
+        }
+
+        function driverSubmitToken() {
+            const input = document.getElementById('token-input').value.toUpperCase();
+            const truck = fleetData.find(t => t.id === input);
+            if(!truck) return;
+            
+            driverCurrentToken = input;
+            activeToken = input;
+            
+            if (truck.status === 'PENDING') {
+                adminSetState('BOUND'); // Автоматично HOLD при першому конекті
+            } else {
+                renderUI();
+            }
+        }
+
+        function renderDriverUI() {
+            hideAllMobileViews();
+            const hwGnss = document.getElementById('hw-gnss');
+            const hwImu = document.getElementById('hw-imu');
+
+            if (!driverCurrentToken) {
+                document.getElementById('view-binding').classList.remove('hidden');
+                document.getElementById('driver-sim-label').innerText = "HW: BYOD (NOT BOUND)";
+                hwGnss.innerText = "GNSS: IDLE"; hwGnss.style.color = "#888";
+                hwImu.innerText = "IMU: STBY"; hwImu.style.color = "#888";
+                return;
+            }
+
+            const truck = fleetData.find(t => t.id === driverCurrentToken);
+            document.getElementById('driver-sim-label').innerText = `HW: BYOD [SIM: ${truck.id}]`;
+
+            if (truck.status === 'BOUND') {
+                document.getElementById('view-stop').classList.remove('hidden');
+                hwGnss.innerText = "GNSS: ACTIVE (4DP)"; hwGnss.style.color = "var(--safety-orange)";
+                hwImu.innerText = "IMU: POLLING"; hwImu.style.color = "var(--safety-orange)";
+            } 
+            else if (truck.status === 'CALLED') {
+                document.getElementById('view-proceed').classList.remove('hidden');
+                hwGnss.innerText = "GNSS: ACTIVE (4DP)"; hwGnss.style.color = "var(--safety-orange)";
+                hwImu.innerText = "IMU: POLLING"; hwImu.style.color = "var(--safety-orange)";
+            }
+            else if (truck.status === 'SHREDDED') {
+                document.getElementById('view-shredded').classList.remove('hidden');
+                hwGnss.innerText = "GNSS: SLEEP"; hwGnss.style.color = "var(--alert-red)";
+                hwImu.innerText = "IMU: SLEEP"; hwImu.style.color = "var(--alert-red)";
+                
+                // Очищення екрану водія через 3 сек
+                setTimeout(() => {
+                    if(driverCurrentToken === truck.id) {
+                        driverCurrentToken = null;
+                        document.getElementById('token-input').value = "";
+                        renderDriverUI();
+                    }
+                }, 3000);
+            }
+            else if (truck.status === 'PENDING') {
+                document.getElementById('view-binding').classList.remove('hidden');
+                document.getElementById('driver-sim-label').innerText = "HW: BYOD (NOT BOUND)";
+            }
+        }
+
+        // ЛОГІКА ПЕРЕМИКАННЯ ВКЛАДОК/РЕГІОНІВ
+        function switchView(viewName) {
+            document.getElementById('btn-view-op').classList.remove('active');
+            document.getElementById('btn-view-gl').classList.remove('active');
+            document.getElementById('section-operational').classList.add('hidden-view');
+            document.getElementById('section-global').classList.add('hidden-view');
+
+            if(viewName === 'operational') {
+                document.getElementById('btn-view-op').classList.add('active');
+                document.getElementById('section-operational').classList.remove('hidden-view');
+            } else {
+                document.getElementById('btn-view-gl').classList.add('active');
+                document.getElementById('section-global').classList.remove('hidden-view');
+                setTimeout(() => { map.invalidateSize(); }, 100);
+            }
+        }
+
+        function switchRegion(region) {
+            currentRegion = region;
+            document.getElementById('btn-uk').classList.remove('active');
+            document.getElementById('btn-usa').classList.remove('active');
+            document.getElementById(region === 'UK' ? 'btn-uk' : 'btn-usa').classList.add('active');
+
+            const d = dict[region];
+            map.setView(d.coords, 10);
+            bufferCircle.setLatLng(d.coords);
+            bufferCircle.setRadius(d.bufferRadius);
+            hubMarker.setLatLng(d.coords);
+            
+            // Скидання симуляції
+            Object.values(mapMarkers).forEach(m => map.removeLayer(m));
+            mapMarkers = {};
+            fleetData.forEach(t => t.status = 'PENDING');
+            activeToken = null; driverCurrentToken = null;
+            document.getElementById('token-input').value = "";
+            renderUI();
+        }
+
+        // КАРТА
+        function initMap() {
+            const data = dict[currentRegion];
+            map = L.map('leaflet-map', { zoomControl: false, attributionControl: false }).setView(data.coords, 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            bufferCircle = L.circle(data.coords, { color: '#FF9F1C', fillColor: '#FF9F1C', fillOpacity: 0.05, weight: 1, dashArray: '5, 5' }).addTo(map);
+            const hubIcon = L.divIcon({ className: 'map-hub-icon', html: 'HUB' });
+            hubMarker = L.marker(data.coords, { icon: hubIcon }).addTo(map);
+        }
+
+        function createMapMarker(truck) {
+            if(mapMarkers[truck.id]) map.removeLayer(mapMarkers[truck.id]);
+            const truckIcon = L.divIcon({ className: 'map-truck-icon', iconSize: [12, 12] });
+            mapMarkers[truck.id] = L.marker([truck.lat, truck.lng], { icon: truckIcon }).addTo(map);
+        }
+
+        function simulationTick() {
+            const d = dict[currentRegion];
+            fleetData.forEach(truck => {
+                if (truck.status === 'BOUND') {
+                    truck.lat += (Math.random() - 0.5) * 0.001; truck.lng += (Math.random() - 0.5) * 0.001;
+                    if(mapMarkers[truck.id]) mapMarkers[truck.id].setLatLng([truck.lat, truck.lng]);
+                } 
+                else if (truck.status === 'CALLED') {
+                    const latDiff = d.coords[0] - truck.lat; const lngDiff = d.coords[1] - truck.lng;
+                    if(Math.abs(latDiff) > 0.001 || Math.abs(lngDiff) > 0.001) {
+                        truck.lat += latDiff * 0.1; truck.lng += lngDiff * 0.1;
+                        if(mapMarkers[truck.id]) mapMarkers[truck.id].setLatLng([truck.lat, truck.lng]);
+                    }
+                }
+            });
+        }
+
+        function ack() {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "ACKNOWLEDGED";
+            setTimeout(() => { btn.innerText = originalText; }, 1000);
+        }
+
+        window.addEventListener('resize', () => {
+            if(map) setTimeout(() => { map.invalidateSize(); }, 200);
+        });
+    </script>
+</body>
+</html>
