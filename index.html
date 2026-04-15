@@ -213,6 +213,7 @@
             <div class="driver-container" id="driver-ui-frame">
                 <div class="hw-status-bar"><span>GNSS: IDLE</span><span>IMU: STBY</span></div>
                 
+                <!-- View 1: Login -->
                 <div id="view-login" class="screen-content">
                     <div class="qr-placeholder">
                         <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3H9V9H3V3ZM5 5V7H7V5H5ZM15 3H21V9H15V3ZM17 5V7H19V5H17ZM3 15H9V21H3V15ZM5 17V19H7V17H5ZM15 15H17V17H15V15ZM19 15H21V17H19V15ZM17 17H19V19H17V17ZM15 19H17V21H15V19ZM19 19H21V21H19V19ZM11 3H13V5H11V3ZM11 7H13V9H11V7ZM11 11H13V13H11V11ZM3 11H5V13H3V11ZM7 11H9V13H7V11ZM15 11H17V13H15V11ZM19 11H21V13H19V11ZM11 15H13V17H11V15ZM11 19H13V21H11V19ZM13 13H15V15H13V13ZM13 17H15V19H13V17ZM17 13H19V15H17V13ZM21 13H22V15H21V13ZM15 21H17V22H15V21Z" fill="black"/></svg>
@@ -221,16 +222,21 @@
                     <div style="font-size: 0.5rem; color: #555;">[SECURE BYOD BINDING]</div>
                 </div>
 
+                <!-- View 2: STOP (RED SCREEN) -->
                 <div id="view-stop" class="screen-content hidden driver-bg-stop">
-                    <div class="huge-command">STOP!</div><div class="sub-command">FIND PARKING</div>
-                    <button class="btn-ack" onclick="switchRole('admin')">ACKNOWLEDGED</button>
+                    <div class="huge-command" id="txt-stop-cmd">STOP!</div>
+                    <div class="sub-command" id="txt-stop-sub">FIND PARKING</div>
+                    <button class="btn-ack" id="btn-ack-stop" onclick="ackDriver('STOP')">ACKNOWLEDGED</button>
                 </div>
 
+                <!-- View 3: GO (GREEN SCREEN) -->
                 <div id="view-go" class="screen-content hidden driver-bg-go">
-                    <div class="huge-command">GO!</div><div class="sub-command">PLACE FREE</div>
-                    <button class="btn-ack" onclick="switchRole('admin')">ACKNOWLEDGED</button>
+                    <div class="huge-command" id="txt-go-cmd">GO!</div>
+                    <div class="sub-command" id="txt-go-sub">PLACE FREE</div>
+                    <button class="btn-ack" id="btn-ack-go" onclick="ackDriver('GO')">ACKNOWLEDGED</button>
                 </div>
 
+                <!-- View 4: SHRED -->
                 <div id="view-shredded" class="screen-content hidden" style="background: black !important;">
                     <div class="text-huge glitch" style="font-size: 4rem;">∅</div><div class="text-sub glitch">SESSION SHREDDED</div>
                 </div>
@@ -244,7 +250,6 @@
                 <div id="fog-no-active" class="active-asset-box" style="text-align: center; border-style: dashed; color: #888; font-size: 0.6rem;">[ SELECT FROM PENDING QUEUE ]</div>
                 
                 <div id="fog-active-box" class="active-asset-box hidden">
-                    <!-- Shred Confirmation UI (Hidden by default) -->
                     <div id="shred-confirm" class="shred-confirm-overlay hidden">
                         <div style="font-size: 0.7rem; color: var(--alert-red); margin-bottom: 10px; font-weight: 700;">CAUTION: IRREVERSIBLE ACTION</div>
                         <div style="font-size: 0.6rem; color: white; margin-bottom: 15px;">EXECUTE SESSION SHREDDING FOR <span id="confirm-id">--</span>?</div>
@@ -262,7 +267,6 @@
                         <button class="btn-cmd btn-stop-cmd" onclick="adminSetState('BOUND')">STOP (RED)</button>
                         <button class="btn-cmd btn-go-cmd" onclick="adminSetState('CALLED')">GO (GRN)</button>
                     </div>
-                    <!-- Trigger request for shredding -->
                     <button class="btn-shred-cmd" onclick="requestShred()">COMPLETE (SHRED)</button>
                 </div>
 
@@ -295,7 +299,7 @@
         let fleetData = [];
         const generateID = () => Math.random().toString(36).substring(2, 8).toUpperCase();
         for(let i=0; i<15; i++) {
-            fleetData.push({ id: generateID(), tacho: (Math.floor(Math.random()*8)+1)+'h '+(Math.floor(Math.random()*59))+'m', status: 'PENDING', lat: 0, lng: 0 });
+            fleetData.push({ id: generateID(), tacho: (Math.floor(Math.random()*8)+1)+'h '+(Math.floor(Math.random()*59))+'m', status: 'PENDING', lat: 0, lng: 0, acknowledged: false });
         }
 
         let ghostFleet = [];
@@ -314,7 +318,7 @@
             const pending = fleetData.filter(t => t.status === 'PENDING').length;
             if (pending < 5) {
                 for(let i=0; i<50; i++) {
-                    fleetData.push({ id: generateID(), tacho: (Math.floor(Math.random()*8)+1)+'h '+(Math.floor(Math.random()*59))+'m', status: 'PENDING', lat: 0, lng: 0 });
+                    fleetData.push({ id: generateID(), tacho: (Math.floor(Math.random()*8)+1)+'h '+(Math.floor(Math.random()*59))+'m', status: 'PENDING', lat: 0, lng: 0, acknowledged: false });
                 }
                 renderUI();
             }
@@ -396,7 +400,6 @@
                 createMapMarker(truck);
                 truck.status = 'BOUND';
             }
-            // Скидаємо блок підтвердження при зміні вибору
             document.getElementById('shred-confirm').classList.add('hidden');
             renderUI();
         }
@@ -405,13 +408,13 @@
             if(!activeAdminAsset) return;
             const truck = fleetData.find(t => t.id === activeAdminAsset);
             truck.status = state;
+            truck.acknowledged = false; // Reset acknowledgment on state change
             if(mapMarkers[truck.id]) {
                 mapMarkers[truck.id].setIcon(L.divIcon({ className: `map-truck-icon ${state === 'CALLED' ? 'green' : ''}`, iconSize: [8, 8] }));
             }
             renderUI();
         }
 
-        // --- NEW CONFIRMATION LOGIC ---
         function requestShred() {
             if(!activeAdminAsset) return;
             document.getElementById('confirm-id').innerText = activeAdminAsset;
@@ -435,7 +438,6 @@
             renderUI();
             autoReplenishQueue();
         }
-        // ------------------------------
 
         function renderDriverUI() {
             const frame = document.getElementById('driver-ui-frame');
@@ -452,15 +454,50 @@
             } else if (truck.status === 'BOUND') {
                 document.getElementById('view-stop').classList.remove('hidden');
                 frame.classList.add('driver-bg-stop');
+                
+                // NEW LOGIC: Check if acknowledged
+                if(truck.acknowledged) {
+                    document.getElementById('txt-stop-cmd').innerText = "PARKING";
+                    document.getElementById('txt-stop-sub').innerText = "STAY IN VEHICLE";
+                    document.getElementById('btn-ack-stop').classList.add('hidden');
+                } else {
+                    document.getElementById('txt-stop-cmd').innerText = "STOP!";
+                    document.getElementById('txt-stop-sub').innerText = "FIND PARKING";
+                    document.getElementById('btn-ack-stop').classList.remove('hidden');
+                }
+
             } else if (truck.status === 'CALLED') {
                 document.getElementById('view-go').classList.remove('hidden');
                 frame.classList.add('driver-bg-go');
+                
+                // NEW LOGIC: Check if acknowledged
+                if(truck.acknowledged) {
+                    document.getElementById('txt-go-cmd').innerText = "DOCK #1";
+                    document.getElementById('txt-go-sub').innerText = "PROCEED IMMEDIATELY";
+                    document.getElementById('btn-ack-go').classList.add('hidden');
+                } else {
+                    document.getElementById('txt-go-cmd').innerText = "GO!";
+                    document.getElementById('txt-go-sub').innerText = "PLACE FREE";
+                    document.getElementById('btn-ack-go').classList.remove('hidden');
+                }
+
             } else if (truck.status === 'SHREDDED') {
                 document.getElementById('view-shredded').classList.remove('hidden');
                 setTimeout(() => {
                    driverDemoAsset = fleetData.find(t => t.status === 'PENDING')?.id || "DONE";
                    renderUI();
                 }, 3000);
+            }
+        }
+
+        // NEW ACK LOGIC
+        function ackDriver(type) {
+            const truck = fleetData.find(t => t.id === driverDemoAsset);
+            if(truck) {
+                truck.acknowledged = true;
+                renderDriverUI();
+                // Optionally switch to admin for easy demo flow
+                setTimeout(() => switchRole('admin'), 1500);
             }
         }
 
@@ -475,7 +512,7 @@
             Object.values(mapMarkers).forEach(m => map.removeLayer(m));
             Object.values(ghostMarkers).forEach(m => map.removeLayer(m));
             mapMarkers = {}; ghostMarkers = {};
-            fleetData.forEach(t => t.status = 'PENDING');
+            fleetData.forEach(t => { t.status = 'PENDING'; t.acknowledged = false; });
             initGhostMarkers();
             activeAdminAsset = null;
             renderUI();
