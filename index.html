@@ -37,7 +37,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            overflow: hidden;
             background-image: 
                 linear-gradient(var(--grid-grey) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-grey) 1px, transparent 1px);
@@ -73,26 +73,20 @@
 
         .status-bar { font-size: 0.6rem; color: var(--safety-orange); }
 
-        /* НАВІГАЦІЯ ВЕРХНЬОГО РІВНЯ */
+        /* НАВІГАЦІЯ */
         .main-nav {
             display: flex;
             background: rgba(10, 17, 40, 0.9);
             border-bottom: 1px solid var(--grid-grey);
+            z-index: 1500;
         }
         .btn-nav {
-            flex: 1;
-            padding: 12px;
-            background: transparent;
-            border: none;
-            color: var(--grid-grey);
-            font-weight: 700;
-            font-size: 0.7rem;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
+            flex: 1; padding: 12px; background: transparent; border: none;
+            color: var(--grid-grey); font-weight: 700; font-size: 0.7rem;
+            cursor: pointer; border-bottom: 2px solid transparent;
         }
         .btn-nav.active {
-            color: var(--safety-orange);
-            border-bottom: 2px solid var(--safety-orange);
+            color: var(--safety-orange); border-bottom: 2px solid var(--safety-orange);
             background: rgba(255, 159, 28, 0.05);
         }
 
@@ -100,43 +94,24 @@
         .view-section { display: flex; flex: 1; overflow: hidden; width: 100%; position: relative; }
         .hidden-view { display: none !important; }
 
-        /* РОЛЬОВИЙ ПЕРЕМИКАЧ (ЗБОКУ) */
+        /* РОЛЬОВИЙ ПЕРЕМИКАЧ */
         .role-switcher {
-            width: 50px;
-            background: var(--grid-grey);
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--safety-orange);
+            width: 50px; background: var(--grid-grey); display: flex;
+            flex-direction: column; border-right: 1px solid var(--safety-orange);
             z-index: 1000;
         }
         .btn-role {
-            flex: 1;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            background: transparent;
-            border: none;
-            color: #888;
-            font-size: 0.7rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
+            flex: 1; writing-mode: vertical-rl; text-orientation: mixed;
+            background: transparent; border: none; color: #888;
+            font-size: 0.7rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
-        .btn-role.active {
-            background: var(--safety-orange);
-            color: var(--deep-navy);
-        }
+        .btn-role.active { background: var(--safety-orange); color: var(--deep-navy); }
 
         /* ПАНЕЛІ */
         .panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: rgba(10, 17, 40, 0.95);
-            position: relative;
-            height: 100%;
+            flex: 1; display: flex; flex-direction: column;
+            background-color: rgba(10, 17, 40, 0.95); position: relative; height: 100%;
         }
         .panel-header {
             background-color: var(--grid-grey); padding: 8px 15px; font-size: 0.7rem;
@@ -144,101 +119,62 @@
             display: flex; justify-content: space-between;
         }
 
-        /* СТИЛІ ВОДІЯ */
-        .driver-container {
-            flex: 1; display: flex; flex-direction: column; height: 100%;
-        }
-        .hw-status-bar {
-            font-size: 0.6rem; padding: 5px 15px; border-bottom: 1px solid var(--grid-grey);
-            display: flex; justify-content: space-between; color: #888;
-        }
-        .screen-content {
-            flex: 1; display: flex; flex-direction: column; justify-content: center;
-            align-items: center; padding: 20px; text-align: center;
-        }
+        /* ЕКРАН ВОДІЯ */
+        .driver-container { flex: 1; display: flex; flex-direction: column; height: 100%; }
+        .hw-status-bar { font-size: 0.6rem; padding: 5px 15px; border-bottom: 1px solid var(--grid-grey); display: flex; justify-content: space-between; color: #888; }
+        .screen-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
 
-        .qr-placeholder {
-            background: white; padding: 15px; margin-bottom: 20px;
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
-        }
-        .digital-token-display {
-            font-size: 2.2rem; font-weight: 700; color: var(--safety-orange);
-            letter-spacing: 4px; margin-bottom: 5px;
-        }
+        .qr-placeholder { background: white; padding: 15px; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; }
+        .digital-token-display { font-size: 2.2rem; font-weight: 700; color: var(--safety-orange); letter-spacing: 4px; margin-bottom: 5px; }
 
         .driver-bg-stop { background-color: var(--proceed-green) !important; color: white !important; }
         .driver-bg-go { background-color: var(--alert-red) !important; color: white !important; }
-        
         .huge-command { font-size: 3rem; font-weight: 900; margin-bottom: 5px; line-height: 1; }
         .sub-command { font-size: 1rem; font-weight: 700; margin-bottom: 30px; }
-        
-        .btn-ack {
-            background: rgba(0,0,0,0.2); border: 2px solid white; color: white;
-            padding: 12px 30px; font-size: 1rem; font-weight: 700; cursor: pointer;
-        }
+        .btn-ack { background: rgba(0,0,0,0.2); border: 2px solid white; color: white; padding: 12px 30px; font-size: 1rem; font-weight: 700; cursor: pointer; }
 
-        /* СТИЛІ АДМІНА */
-        .admin-lists-container {
-            display: flex; flex-direction: column; gap: 8px; padding: 10px; overflow-y: auto; flex: 1;
-        }
-        .list-section-title {
-            font-size: 0.65rem; color: var(--safety-orange); border-bottom: 1px solid var(--grid-grey);
-            padding-bottom: 2px; margin-bottom: 5px; font-weight: 700;
-        }
-        .admin-item {
-            border: 1px solid var(--grid-grey); background: rgba(43, 45, 66, 0.3);
-            padding: 8px; margin-bottom: 4px; display: flex; flex-direction: column; gap: 4px;
-            cursor: pointer;
-        }
+        /* ЕКРАН АДМІНА */
+        .admin-lists-container { display: flex; flex-direction: column; gap: 8px; padding: 10px; overflow-y: auto; flex: 1; }
+        .list-section-title { font-size: 0.65rem; color: var(--safety-orange); border-bottom: 1px solid var(--grid-grey); padding-bottom: 2px; margin-bottom: 5px; font-weight: 700; }
+        .admin-item { border: 1px solid var(--grid-grey); background: rgba(43, 45, 66, 0.3); padding: 8px; margin-bottom: 4px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
         .admin-item.selected { border-color: var(--safety-orange); background: rgba(255, 159, 28, 0.1); }
         .admin-item-header { display: flex; justify-content: space-between; align-items: center; }
         .admin-item-title { font-weight: 700; font-size: 0.8rem; color: var(--data-white); }
-        .admin-item-meta { font-size: 0.55rem; color: #888; }
         
-        .active-asset-box {
-            width: 100%; border: 1px solid var(--safety-orange); padding: 12px; margin-bottom: 8px;
-            background: rgba(255, 159, 28, 0.05); text-align: left;
-        }
-        
+        .active-asset-box { width: 100%; border: 1px solid var(--safety-orange); padding: 12px; margin-bottom: 8px; background: rgba(255, 159, 28, 0.05); text-align: left; }
         .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-        .btn-cmd { padding: 12px 5px; font-size: 0.65rem; font-weight: 700; border: 1px solid; cursor: pointer; background: transparent; color: white; }
+        .btn-cmd { padding: 12px 5px; font-size: 0.65rem; font-weight: 700; border: 1px solid; cursor: pointer; background: transparent; }
         .btn-stop-cmd { border-color: var(--proceed-green); color: var(--proceed-green); }
         .btn-go-cmd { border-color: var(--alert-red); color: var(--alert-red); }
         .btn-shred-cmd { border: 1px dashed var(--safety-orange); color: var(--safety-orange); width: 100%; padding: 10px; }
 
-        /* CLOUD DASHBOARD */
-        .dashboard-layout { width: 100%; height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; margin-bottom: 10px; }
-        .data-table th, .data-table td { border: 1px solid var(--grid-grey); padding: 8px; text-align: left; }
-        .data-table th { color: var(--safety-orange); background: rgba(43, 45, 66, 0.5); }
-        
-        .map-container { height: 250px; border: 1px solid var(--grid-grey); position: relative; width: 100%; flex-shrink: 0; }
+        /* CLOUD DASHBOARD (50/50 SPLIT) */
+        .dashboard-layout { width: 100%; height: 100%; display: flex; flex-direction: column; }
+        .map-container { 
+            height: 50%; /* Рівно половина екрана */
+            border-bottom: 2px solid var(--safety-orange); 
+            position: relative; width: 100%; flex-shrink: 0; z-index: 1;
+        }
         #leaflet-map { width: 100%; height: 100%; background: var(--deep-navy); }
         .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
         
-        .map-truck-icon { background-color: var(--alert-red); border: 1px solid #fff; width: 10px; height: 10px; border-radius: 50% !important; }
-        .map-truck-icon.green { background-color: var(--proceed-green); }
+        .data-container { flex: 1; overflow-y: auto; padding: 10px; background: rgba(10, 17, 40, 0.9); }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.6rem; }
+        .data-table th, .data-table td { border: 1px solid var(--grid-grey); padding: 6px; text-align: left; }
+        .data-table th { color: var(--safety-orange); background: rgba(43, 45, 66, 0.5); position: sticky; top: 0; }
+
+        /* ICON STYLES */
+        .map-truck-icon { background-color: var(--alert-red); border: 1px solid #fff; width: 8px; height: 8px; border-radius: 50% !important; box-shadow: 0 0 5px var(--alert-red); }
+        .map-truck-icon.green { background-color: var(--proceed-green); box-shadow: 0 0 5px var(--proceed-green); }
+        .map-truck-icon.ghost { background-color: #888; border: 1px solid #444; width: 6px; height: 6px; opacity: 0.6; box-shadow: none; }
 
         .hidden { display: none !important; }
         .glitch { animation: glitch-anim 0.2s linear infinite; }
-        @keyframes glitch-anim {
-            0% { transform: translate(0) }
-            20% { transform: translate(-1px, 1px) }
-            40% { transform: translate(-1px, -1px) }
-            100% { transform: translate(0) }
-        }
-
-        /* ТЕЛЕФОННИЙ ФОРМАТ - ОПТИМІЗАЦІЯ */
-        @media (max-width: 600px) {
-            .logo { font-size: 0.8rem; }
-            .huge-command { font-size: 2.5rem; }
-        }
+        @keyframes glitch-anim { 0% { transform: translate(0) } 20% { transform: translate(-1px, 1px) } 40% { transform: translate(-1px, -1px) } 100% { transform: translate(0) } }
     </style>
 </head>
 <body>
 
-    <!-- ВЕРХНЯ НАВІГАЦІЯ (TOP TABS) -->
     <header>
         <div class="logo">ZVL<span>_</span>SYSTEM</div>
         <div class="header-controls">
@@ -255,9 +191,8 @@
         <button class="btn-nav" onclick="switchMainView('global')" id="nav-gl">GLOBAL HUB</button>
     </nav>
 
-    <!-- OPERATIONAL VIEW (WITH SIDE ROLE SWITCHER) -->
+    <!-- ОПЕРАЦІЙНИЙ ВИД (З РОЛЬОВИМ ПЕРЕМИКАЧЕМ) -->
     <div id="section-operational" class="view-section">
-        
         <aside class="role-switcher">
             <button class="btn-role active" onclick="switchRole('driver')" id="role-driver">DRIVER (BYOD)</button>
             <button class="btn-role" onclick="switchRole('admin')" id="role-admin">ADMIN (FOG)</button>
@@ -265,131 +200,96 @@
 
         <!-- ПАНЕЛЬ ВОДІЯ -->
         <div class="panel" id="panel-driver">
-            <div class="panel-header">
-                <span>DRIVER INTERFACE</span>
-                <span id="driver-id-label">ID: 8A9B2C</span>
-            </div>
+            <div class="panel-header"><span>DRIVER APP</span><span id="driver-id-label">ID: 8A9B2C</span></div>
             <div class="driver-container" id="driver-ui-frame">
-                <div class="hw-status-bar">
-                    <span id="hw-gnss">GNSS: IDLE</span>
-                    <span id="hw-imu">IMU: STBY</span>
-                </div>
-                
-                <!-- Login/QR View -->
+                <div class="hw-status-bar"><span>GNSS: IDLE</span><span>IMU: STBY</span></div>
                 <div id="view-login" class="screen-content">
-                    <div class="text-sub" style="font-size: 0.6rem; margin-bottom: 15px; color:#888;">SCAN AT TERMINAL GATE</div>
                     <div class="qr-placeholder">
-                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3H9V9H3V3ZM5 5V7H7V5H5ZM15 3H21V9H15V3ZM17 5V7H19V5H17ZM3 15H9V21H3V15ZM5 17V19H7V17H5ZM15 15H17V17H15V15ZM19 15H21V17H19V15ZM17 17H19V19H17V17ZM15 19H17V21H15V19ZM19 19H21V21H19V19ZM11 3H13V5H11V3ZM11 7H13V9H11V7ZM11 11H13V13H11V11ZM3 11H5V13H3V11ZM7 11H9V13H7V11ZM15 11H17V13H15V11ZM19 11H21V13H19V11ZM11 15H13V17H11V15ZM11 19H13V21H11V19ZM13 13H15V15H13V13ZM13 17H15V19H13V17ZM17 13H19V15H17V13ZM21 13H22V15H21V13ZM15 21H17V22H15V21Z" fill="black"/>
-                        </svg>
+                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3H9V9H3V3ZM5 5V7H7V5H5ZM15 3H21V9H15V3ZM17 5V7H19V5H17ZM3 15H9V21H3V15ZM5 17V19H7V17H5ZM15 15H17V17H15V15ZM19 15H21V17H19V15ZM17 17H19V19H17V17ZM15 19H17V21H15V19ZM19 19H21V21H19V19ZM11 3H13V5H11V3ZM11 7H13V9H11V7ZM11 11H13V13H11V11ZM3 11H5V13H3V11ZM7 11H9V13H7V11ZM15 11H17V13H15V11ZM19 11H21V13H19V11ZM11 15H13V17H11V15ZM11 19H13V21H11V19ZM13 13H15V15H13V13ZM13 17H15V19H13V17ZM17 13H19V15H17V13ZM21 13H22V15H21V13ZM15 21H17V22H15V21Z" fill="black"/></svg>
                     </div>
                     <div class="digital-token-display">8A9B2C</div>
                     <div style="font-size: 0.5rem; color: #555;">[SECURE BYOD BINDING]</div>
                 </div>
-
-                <!-- Commands -->
                 <div id="view-stop" class="screen-content hidden driver-bg-stop">
-                    <div class="huge-command">STOP!</div>
-                    <div class="sub-command">FIND PARKING</div>
+                    <div class="huge-command">STOP!</div><div class="sub-command">FIND PARKING</div>
                     <button class="btn-ack" onclick="switchRole('admin')">ACKNOWLEDGED</button>
                 </div>
-
                 <div id="view-go" class="screen-content hidden driver-bg-go">
-                    <div class="huge-command">GO!</div>
-                    <div class="sub-command">PLACE FREE</div>
+                    <div class="huge-command">GO!</div><div class="sub-command">PLACE FREE</div>
                     <button class="btn-ack" onclick="switchRole('admin')">ACKNOWLEDGED</button>
                 </div>
-
-                <!-- Shred -->
                 <div id="view-shredded" class="screen-content hidden" style="background: black !important;">
-                    <div class="text-huge glitch" style="font-size: 4rem;">∅</div>
-                    <div class="text-sub glitch">SESSION SHREDDED</div>
+                    <div class="text-huge glitch" style="font-size: 4rem;">∅</div><div class="text-sub glitch">SESSION SHREDDED</div>
                 </div>
             </div>
         </div>
 
         <!-- ПАНЕЛЬ АДМІНА -->
         <div class="panel hidden" id="panel-admin">
-            <div class="panel-header">
-                <span>TERMINAL CONTROL</span>
-                <span id="admin-hub-label">HUB_ALPHA</span>
-            </div>
+            <div class="panel-header"><span>TERMINAL CONTROL</span><span>HUB_ALPHA</span></div>
             <div class="admin-lists-container">
-                
-                <div id="fog-no-active" class="active-asset-box" style="text-align: center; border-style: dashed; color: #888; font-size: 0.6rem;">
-                    [ SELECT TRUCK FROM QUEUE TO COMMAND ]
-                </div>
-                
+                <div id="fog-no-active" class="active-asset-box" style="text-align: center; border-style: dashed; color: #888; font-size: 0.6rem;">[ SELECT TRUCK FROM QUEUE ]</div>
                 <div id="fog-active-box" class="active-asset-box hidden">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <div>
-                            <div style="font-size: 0.9rem; font-weight: 700;">TRUCK: <span id="adm-active-token">8A9B2C</span></div>
-                            <div style="font-size: 0.55rem; color: #888;">CARGO: ELECTRONICS</div>
-                        </div>
+                        <div><div style="font-size: 0.9rem; font-weight: 700;">TRUCK: <span id="adm-active-token">8A9B2C</span></div></div>
                         <div id="adm-active-status" style="font-size: 0.6rem; color: var(--safety-orange); font-weight: 700;">LOGGED</div>
                     </div>
-                    
                     <div class="control-grid">
-                        <button class="btn-cmd btn-stop-cmd" onclick="adminSetState('BOUND')">STOP! (GRN)</button>
-                        <button class="btn-cmd btn-go-cmd" onclick="adminSetState('CALLED')">GO! (RED)</button>
+                        <button class="btn-cmd btn-stop-cmd" onclick="adminSetState('BOUND')">STOP (GRN)</button>
+                        <button class="btn-cmd btn-go-cmd" onclick="adminSetState('CALLED')">GO (RED)</button>
                     </div>
-                    <button class="btn-shred-cmd" onclick="adminShred()">TASK COMPLETE (SHRED)</button>
+                    <button class="btn-shred-cmd" onclick="adminShred()">COMPLETE (SHRED)</button>
                 </div>
-
-                <div class="list-section-title">ACTIVE SESSIONS</div>
-                <div id="admin-active-list"></div>
-
-                <div class="list-section-title">PENDING QUEUE</div>
-                <div id="admin-pending-list"></div>
-
-                <div class="list-section-title" style="color:#555;">ARCHIVE</div>
-                <div id="admin-archive-list"></div>
-
+                <div class="list-section-title">ACTIVE SESSIONS</div><div id="admin-active-list"></div>
+                <div class="list-section-title">PENDING QUEUE</div><div id="admin-pending-list"></div>
             </div>
         </div>
     </div>
 
-    <!-- ГЛОБАЛЬНИЙ ВИД (ХМАРА) -->
+    <!-- ГЛОБАЛЬНИЙ ВИД (50/50) -->
     <div id="section-global" class="view-section hidden-view">
-        <div class="panel">
-            <div class="panel-header"><span>GLOBAL HUB VIEW</span><span class="lbl-hub">HUB_ALPHA</span></div>
-            <div class="dashboard-layout">
-                
-                <div class="map-container">
-                    <div id="leaflet-map"></div>
-                </div>
-
-                <div style="flex: 1;">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>ASSET</th><th>TACHO</th><th>STATUS</th></tr>
-                        </thead>
-                        <tbody id="cloud-table-body"></tbody>
-                    </table>
-                </div>
-
+        <div class="dashboard-layout">
+            <div class="map-container">
+                <div id="leaflet-map"></div>
+                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.5rem; color: #888; z-index: 1000; background: rgba(0,0,0,0.5); padding: 2px;">LIVE SIMULATION MODE</div>
+            </div>
+            <div class="data-container">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--safety-orange); margin-bottom: 8px;">NETWORK STATUS: <span style="color: #4ADE80;">HEALTHY</span></div>
+                <table class="data-table">
+                    <thead><tr><th>ASSET ID</th><th>TACHO</th><th>STATUS</th></tr></thead>
+                    <tbody id="cloud-table-body"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // ДАНІ ТА СЛОВНИК
         const dict = {
-            'UK': { hub: 'HUB_ALPHA', city: 'LONDON_ZONE', coords: [51.46, 0.25], startCoords: [51.58, 0.05] },
-            'USA': { hub: 'HUB_BETA', city: 'NY_ZONE', coords: [40.54, -74.18], startCoords: [40.75, -74.35] }
+            'UK': { hub: 'HUB_ALPHA', coords: [51.46, 0.25], startCoords: [51.58, 0.05] },
+            'USA': { hub: 'HUB_BETA', coords: [40.54, -74.18], startCoords: [40.75, -74.35] }
         };
 
+        // Основні дані
         let fleetData = [
-            { id: '8A9B2C', cargo: 'Electronics', tacho: '8h 45m', status: 'PENDING', lat: 0, lng: 0 },
-            { id: '9F2X11', cargo: 'Apparel', tacho: '3h 10m', status: 'PENDING', lat: 0, lng: 0 }
+            { id: '8A9B2C', tacho: '8h 45m', status: 'PENDING', lat: 0, lng: 0, isGhost: false },
+            { id: '9F2X11', tacho: '3h 10m', status: 'PENDING', lat: 0, lng: 0, isGhost: false }
+        ];
+
+        // Фантомний флот для візуалізації (Imaginary Cars)
+        let ghostFleet = [
+            { id: 'GH-771', tacho: '5h 20m', status: 'IN_TRANSIT', offset: [0.03, -0.04] },
+            { id: 'GH-882', tacho: '2h 15m', status: 'LOCAL_DELIVERY', offset: [-0.02, 0.05] },
+            { id: 'GH-104', tacho: '7h 50m', status: 'IN_TRANSIT', offset: [0.06, 0.02] },
+            { id: 'GH-339', tacho: '1h 05m', status: 'HOLDING', offset: [-0.01, -0.03] }
         ];
 
         let currentRegion = 'UK';
         let activeAdminAsset = null;
         let map, hubMarker;
-        let mapMarkers = {};
+        let mapMarkers = {}; // Об'єкт для реальних маркерів
+        let ghostMarkers = {}; // Об'єкт для фантомних маркерів
 
-        // ПЕРЕМИКАННЯ РОЛЕЙ (SIDE SWITCHER)
+        // Перемикач ролей
         function switchRole(role) {
             document.getElementById('role-driver').classList.remove('active');
             document.getElementById('role-admin').classList.remove('active');
@@ -405,7 +305,7 @@
             }
         }
 
-        // ПЕРЕМИКАННЯ ГОЛОВНИХ ВИДІВ
+        // Перемикач головних екранів
         function switchMainView(view) {
             document.getElementById('nav-op').classList.remove('active');
             document.getElementById('nav-gl').classList.remove('active');
@@ -422,55 +322,48 @@
             }
         }
 
-        // КЕРУВАННЯ СТАНАМИ
+        // Рендер інтерфейсу
         function renderUI() {
             const activeList = document.getElementById('admin-active-list');
             const pendingList = document.getElementById('admin-pending-list');
-            const archiveList = document.getElementById('admin-archive-list');
             const cloudTable = document.getElementById('cloud-table-body');
             
-            activeList.innerHTML = ''; pendingList.innerHTML = ''; archiveList.innerHTML = ''; cloudTable.innerHTML = '';
+            activeList.innerHTML = ''; pendingList.innerHTML = ''; cloudTable.innerHTML = '';
 
+            // Рендер реальних авто
             fleetData.forEach(truck => {
-                // Admin List Items
                 const item = document.createElement('div');
                 item.className = `admin-item ${truck.id === activeAdminAsset ? 'selected' : ''}`;
                 
                 if (truck.status === 'BOUND' || truck.status === 'CALLED') {
                     item.onclick = () => focusToken(truck.id);
-                    item.innerHTML = `<div class="admin-item-header">
-                        <div class="admin-item-title">${truck.id}</div>
-                        <div style="font-size:0.5rem; color:${truck.status === 'CALLED' ? 'var(--alert-red)' : 'var(--proceed-green)'}">
-                            ${truck.status === 'CALLED' ? 'STATE: GO' : 'STATE: STOP'}
-                        </div>
-                    </div>`;
+                    item.innerHTML = `<div class="admin-item-header"><div class="admin-item-title">${truck.id}</div><div style="font-size:0.5rem; color:${truck.status === 'CALLED' ? 'var(--alert-red)' : 'var(--proceed-green)'}">${truck.status === 'CALLED' ? 'GO' : 'STOP'}</div></div>`;
                     activeList.appendChild(item);
                 } else if (truck.status === 'PENDING') {
                     item.onclick = () => focusToken(truck.id);
-                    item.innerHTML = `<div class="admin-item-header">
-                        <div class="admin-item-title">${truck.id}</div>
-                        <div class="admin-item-meta">LOGIN REQ</div>
-                    </div>`;
+                    item.innerHTML = `<div class="admin-item-header"><div class="admin-item-title">${truck.id}</div><div style="font-size:0.5rem;">LOGIN REQ</div></div>`;
                     pendingList.appendChild(item);
-                } else if (truck.status === 'SHREDDED') {
-                    item.className += ' completed';
-                    item.innerHTML = `<div class="admin-item-header"><div>${truck.id}</div><div style="font-size:0.5rem;">SHREDDED</div></div>`;
-                    archiveList.appendChild(item);
                 }
 
-                // Cloud Table Row
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${truck.id}</td><td>${truck.tacho}</td><td>${truck.status}</td>`;
                 cloudTable.appendChild(tr);
             });
 
-            // Active Panel Update
+            // Рендер фантомних авто в таблицю
+            ghostFleet.forEach(ghost => {
+                const tr = document.createElement('tr');
+                tr.style.opacity = "0.6";
+                tr.innerHTML = `<td>${ghost.id}*</td><td>${ghost.tacho}</td><td>${ghost.status}</td>`;
+                cloudTable.appendChild(tr);
+            });
+
             if(activeAdminAsset) {
                 const data = fleetData.find(t => t.id === activeAdminAsset);
                 document.getElementById('fog-no-active').classList.add('hidden');
                 document.getElementById('fog-active-box').classList.remove('hidden');
                 document.getElementById('adm-active-token').innerText = data.id;
-                document.getElementById('adm-active-status').innerText = data.status === 'PENDING' ? 'LOGIN' : data.status;
+                document.getElementById('adm-active-status').innerText = data.status;
             }
 
             renderDriverUI();
@@ -483,7 +376,7 @@
                 const d = dict[currentRegion];
                 truck.lat = d.startCoords[0]; truck.lng = d.startCoords[1];
                 createMapMarker(truck);
-                truck.status = 'BOUND'; // Auto-login on click
+                truck.status = 'BOUND';
             }
             renderUI();
         }
@@ -493,7 +386,7 @@
             const truck = fleetData.find(t => t.id === activeAdminAsset);
             truck.status = state;
             if(mapMarkers[truck.id]) {
-                mapMarkers[truck.id].setIcon(L.divIcon({ className: `map-truck-icon ${state === 'CALLED' ? 'green' : ''}`, iconSize: [10, 10] }));
+                mapMarkers[truck.id].setIcon(L.divIcon({ className: `map-truck-icon ${state === 'CALLED' ? 'green' : ''}`, iconSize: [8, 8] }));
             }
             renderUI();
         }
@@ -503,7 +396,7 @@
             const truck = fleetData.find(t => t.id === activeAdminAsset);
             truck.status = 'SHREDDED';
             if(mapMarkers[truck.id]) {
-                mapMarkers[truck.id].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [10, 10] }));
+                mapMarkers[truck.id].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [8, 8] }));
                 setTimeout(() => { map.removeLayer(mapMarkers[truck.id]); delete mapMarkers[truck.id]; }, 500);
             }
             activeAdminAsset = null;
@@ -516,68 +409,87 @@
             views.forEach(v => document.getElementById(v).classList.add('hidden'));
             frame.className = 'driver-container';
 
-            const truck = fleetData.find(t => t.id === '8A9B2C'); // Demo constant
+            const truck = fleetData.find(t => t.id === '8A9B2C');
             if(!truck || truck.status === 'PENDING') {
                 document.getElementById('view-login').classList.remove('hidden');
-                document.getElementById('hw-gnss').innerText = "GNSS: IDLE";
             } else if (truck.status === 'BOUND') {
                 document.getElementById('view-stop').classList.remove('hidden');
                 frame.classList.add('driver-bg-stop');
-                document.getElementById('hw-gnss').innerText = "GNSS: ACTIVE";
             } else if (truck.status === 'CALLED') {
                 document.getElementById('view-go').classList.remove('hidden');
                 frame.classList.add('driver-bg-go');
-                document.getElementById('hw-gnss').innerText = "GNSS: ACTIVE";
             } else if (truck.status === 'SHREDDED') {
                 document.getElementById('view-shredded').classList.remove('hidden');
-                document.getElementById('hw-gnss').innerText = "GNSS: SLEEP";
                 setTimeout(() => location.reload(), 3000);
             }
         }
 
-        // РЕГІОНИ
         function switchRegion(region) {
             currentRegion = region;
             document.getElementById('btn-uk').classList.remove('active');
             document.getElementById('btn-usa').classList.remove('active');
             document.getElementById(`btn-${region.toLowerCase()}`).classList.add('active');
             const d = dict[region];
-            document.querySelectorAll('.lbl-hub').forEach(e => e.innerText = d.hub);
             map.setView(d.coords, 10);
             hubMarker.setLatLng(d.coords);
+            
+            // Очищення всіх маркерів
             Object.values(mapMarkers).forEach(m => map.removeLayer(m));
-            mapMarkers = {};
+            Object.values(ghostMarkers).forEach(m => map.removeLayer(m));
+            mapMarkers = {}; ghostMarkers = {};
+            
             fleetData.forEach(t => t.status = 'PENDING');
+            initGhostMarkers();
             activeAdminAsset = null;
             renderUI();
         }
 
-        // КАРТА
         function initMap() {
             const d = dict[currentRegion];
             map = L.map('leaflet-map', { zoomControl: false, attributionControl: false }).setView(d.coords, 10);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            const hubIcon = L.divIcon({ className: 'map-hub-icon', html: 'H', iconSize: [20, 20] });
-            hubMarker = L.marker(d.coords, { icon: hubIcon }).addTo(map);
+            hubMarker = L.marker(d.coords, { icon: L.divIcon({ className: 'map-hub-icon', html: 'H', iconSize: [16, 16] }) }).addTo(map);
+            initGhostMarkers();
+        }
+
+        function initGhostMarkers() {
+            const d = dict[currentRegion];
+            ghostFleet.forEach(ghost => {
+                const lat = d.coords[0] + ghost.offset[0];
+                const lng = d.coords[1] + ghost.offset[1];
+                ghostMarkers[ghost.id] = L.marker([lat, lng], { 
+                    icon: L.divIcon({ className: 'map-truck-icon ghost', iconSize: [6, 6] }) 
+                }).addTo(map);
+            });
         }
 
         function createMapMarker(truck) {
-            const truckIcon = L.divIcon({ className: `map-truck-icon`, iconSize: [10, 10] });
-            mapMarkers[truck.id] = L.marker([truck.lat, truck.lng], { icon: truckIcon }).addTo(map);
+            mapMarkers[truck.id] = L.marker([truck.lat, truck.lng], { 
+                icon: L.divIcon({ className: `map-truck-icon`, iconSize: [8, 8] }) 
+            }).addTo(map);
         }
 
         function simulationTick() {
             const d = dict[currentRegion];
+            
+            // Рух реальних авто
             fleetData.forEach(truck => {
                 if (truck.status === 'BOUND') {
                     truck.lat += (Math.random() - 0.5) * 0.0005; truck.lng += (Math.random() - 0.5) * 0.0005;
-                    if(mapMarkers[truck.id]) mapMarkers[truck.id].setLatLng([truck.lat, truck.lng]);
                 } else if (truck.status === 'CALLED') {
-                    const latDiff = d.coords[0] - truck.lat; const lngDiff = d.coords[1] - truck.lng;
-                    if(Math.abs(latDiff) > 0.001 || Math.abs(lngDiff) > 0.001) {
-                        truck.lat += latDiff * 0.05; truck.lng += lngDiff * 0.05;
-                        if(mapMarkers[truck.id]) mapMarkers[truck.id].setLatLng([truck.lat, truck.lng]);
-                    }
+                    truck.lat += (d.coords[0] - truck.lat) * 0.05; truck.lng += (d.coords[1] - truck.lng) * 0.05;
+                }
+                if(mapMarkers[truck.id]) mapMarkers[truck.id].setLatLng([truck.lat, truck.lng]);
+            });
+
+            // Маленький рух фантомних авто для "живої" картинки
+            ghostFleet.forEach(ghost => {
+                if(ghostMarkers[ghost.id]) {
+                    const pos = ghostMarkers[ghost.id].getLatLng();
+                    ghostMarkers[ghost.id].setLatLng([
+                        pos.lat + (Math.random() - 0.5) * 0.0002,
+                        pos.lng + (Math.random() - 0.5) * 0.0002
+                    ]);
                 }
             });
         }
