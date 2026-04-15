@@ -336,10 +336,18 @@
         <div class="dashboard-layout">
             <div class="map-container"><div id="leaflet-map"></div></div>
             <div class="data-container">
-                <div style="font-size: 0.75rem; font-weight: 700; color: var(--safety-orange); margin-bottom: 8px;">FLEET MATRIX (AUTO-GEN)</div>
+                <!-- ACTIVE TABLE -->
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--safety-orange); margin-bottom: 8px;">ACTIVE FLEET MATRIX</div>
                 <table class="data-table">
                     <thead><tr><th>ID</th><th>TACHO</th><th>STATUS</th></tr></thead>
                     <tbody id="cloud-table-body"></tbody>
+                </table>
+
+                <!-- ARCHIVE TABLE -->
+                <div style="font-size: 0.75rem; font-weight: 700; color: #888; margin: 15px 0 8px; border-top: 1px solid var(--grid-grey); padding-top: 10px;">COMPLETED ARCHIVE (HISTORY)</div>
+                <table class="data-table" style="opacity: 0.8;">
+                    <thead><tr><th>ID</th><th>DATE</th><th>FINISH</th></tr></thead>
+                    <tbody id="archive-table-body"></tbody>
                 </table>
             </div>
         </div>
@@ -356,7 +364,15 @@
         let fleetData = [];
         const generateID = () => Math.random().toString(36).substring(2, 8).toUpperCase();
         for(let i=0; i<15; i++) {
-            fleetData.push({ id: generateID(), tacho: (Math.floor(Math.random()*8)+1)+'h '+(Math.floor(Math.random()*59))+'m', status: 'PENDING', lat: 0, lng: 0, acknowledged: false });
+            fleetData.push({ 
+                id: generateID(), 
+                tacho: (Math.floor(Math.random()*8)+1)+'h '+(Math.floor(Math.random()*59))+'m', 
+                status: 'PENDING', 
+                lat: 0, lng: 0, 
+                acknowledged: false,
+                finishTime: null,
+                finishDate: null
+            });
         }
 
         let currentRegion = 'UK';
@@ -369,13 +385,21 @@
         function autoReplenishQueue() {
             if (fleetData.filter(t => t.status === 'PENDING').length < 5) {
                 for(let i=0; i<50; i++) {
-                    fleetData.push({ id: generateID(), tacho: (Math.floor(Math.random()*8)+1)+'h '+(Math.floor(Math.random()*59))+'m', status: 'PENDING', lat: 0, lng: 0, acknowledged: false });
+                    fleetData.push({ 
+                        id: generateID(), 
+                        tacho: (Math.floor(Math.random()*8)+1)+'h '+(Math.floor(Math.random()*59))+'m', 
+                        status: 'PENDING', 
+                        lat: 0, lng: 0, 
+                        acknowledged: false,
+                        finishTime: null,
+                        finishDate: null
+                    });
                 }
                 renderUI();
             }
         }
 
-        // ПЕРЕМИКАННЯ РОЛЕЙ (SIDE BAR)
+        // SWITCH ROLE
         function switchRole(role) {
             document.getElementById('role-driver').classList.remove('active');
             document.getElementById('role-admin').classList.remove('active');
@@ -390,7 +414,6 @@
             }
         }
 
-        // ПЕРЕМИКАННЯ ВКЛАДОК ПРЕЗЕНТАЦІЇ
         function switchMainView(view) {
             document.getElementById('nav-op').classList.remove('active');
             document.getElementById('nav-gl').classList.remove('active');
@@ -411,10 +434,23 @@
             const activeList = document.getElementById('admin-active-list');
             const pendingList = document.getElementById('admin-pending-list');
             const cloudTable = document.getElementById('cloud-table-body');
-            activeList.innerHTML = ''; pendingList.innerHTML = ''; cloudTable.innerHTML = '';
+            const archiveTable = document.getElementById('archive-table-body');
+            
+            activeList.innerHTML = ''; 
+            pendingList.innerHTML = ''; 
+            cloudTable.innerHTML = '';
+            archiveTable.innerHTML = '';
 
             fleetData.forEach(truck => {
-                if(truck.status === 'SHREDDED') return;
+                if(truck.status === 'SHREDDED') {
+                    // Populate Global Archive
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${truck.id}</td><td>${truck.finishDate}</td><td>${truck.finishTime}</td>`;
+                    archiveTable.appendChild(row);
+                    return;
+                }
+
+                // Admin UI Items
                 const item = document.createElement('div');
                 item.className = `admin-item ${truck.id === activeAdminAsset ? 'selected' : ''}`;
                 if (truck.status === 'BOUND' || truck.status === 'CALLED') {
@@ -426,6 +462,8 @@
                     item.innerHTML = `<div style="font-size:0.6rem; color:#888;">${truck.id} (PENDING)</div>`;
                     pendingList.appendChild(item);
                 }
+
+                // Active Cloud Table Rows
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${truck.id}</td><td>${truck.tacho}</td><td>${truck.status}</td>`;
                 cloudTable.appendChild(tr);
@@ -479,6 +517,11 @@
         function executeShred() {
             if(!activeAdminAsset) return;
             const truck = fleetData.find(t => t.id === activeAdminAsset);
+            
+            // Capture timestamps for Archive
+            truck.finishTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            truck.finishDate = new Date().toLocaleDateString('en-GB');
+            
             truck.status = 'SHREDDED';
             if(mapMarkers[truck.id]) {
                 mapMarkers[truck.id].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [8, 8] }));
@@ -527,7 +570,10 @@
                 }
             } else if (truck.status === 'SHREDDED') {
                 document.getElementById('view-shredded').classList.remove('hidden');
-                setTimeout(() => { driverDemoAsset = fleetData.find(t => t.status === 'PENDING')?.id || "DONE"; renderUI(); }, 3000);
+                setTimeout(() => { 
+                    driverDemoAsset = fleetData.find(t => t.status === 'PENDING')?.id || "DONE"; 
+                    renderUI(); 
+                }, 3000);
             }
         }
 
@@ -546,7 +592,12 @@
             hubMarker.setLatLng(d.coords);
             Object.values(mapMarkers).forEach(m => map.removeLayer(m));
             mapMarkers = {};
-            fleetData.forEach(t => { t.status = 'PENDING'; t.acknowledged = false; });
+            fleetData.forEach(t => { 
+                t.status = 'PENDING'; 
+                t.acknowledged = false;
+                t.finishTime = null;
+                t.finishDate = null;
+            });
             activeAdminAsset = null; renderUI();
         }
 
