@@ -142,7 +142,15 @@
         .driver-bg-go { background-color: var(--proceed-green) !important; color: white !important; }
         .huge-command { font-size: 3rem; font-weight: 900; margin-bottom: 5px; line-height: 1; }
         .sub-command { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
-        .eta-display-driver { font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 30px; border: 1px solid white; padding: 5px 15px; }
+        
+        /* ETA DISPLAY FOR DRIVER */
+        .eta-display-driver { 
+            font-size: 0.9rem; font-weight: 700; 
+            color: rgba(255,255,255,0.9); margin-bottom: 30px; 
+            border: 1px solid white; padding: 8px 15px;
+            background: rgba(0,0,0,0.1);
+        }
+        
         .btn-ack { background: rgba(0,0,0,0.2); border: 2px solid white; color: white; padding: 15px 35px; font-weight: 700; cursor: pointer; }
 
         /* ADMIN TERMINAL */
@@ -151,6 +159,11 @@
         .admin-item { border: 1px solid var(--grid-grey); background: rgba(43, 45, 66, 0.3); padding: 8px; margin-bottom: 4px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
         .admin-item.selected { border-color: var(--safety-orange); background: rgba(255, 159, 28, 0.1); }
         
+        .eta-badge {
+            font-size: 0.6rem; background: rgba(0,0,0,0.5); color: var(--safety-orange);
+            padding: 2px 5px; border: 1px solid var(--safety-orange); float: right;
+        }
+
         .active-asset-box { width: 100%; border: 1px solid var(--safety-orange); padding: 10px; margin-bottom: 8px; background: rgba(255, 159, 28, 0.05); position: relative; }
         .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
         .btn-cmd { padding: 12px 2px; font-size: 0.65rem; font-weight: 700; border: 1px solid; cursor: pointer; background: transparent; color: white; }
@@ -227,7 +240,7 @@
                         <span id="hw-time">--:--</span>
                     </div>
 
-                    <!-- ЕКРАН ВОДІЯ -->
+                    <!-- DRIVER INTERFACE -->
                     <div id="driver-ui-frame" class="screen-content">
                         <div id="view-login">
                             <div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">SCAN TO LOGIN</div>
@@ -247,6 +260,7 @@
                         <div id="view-go" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <div class="huge-command" id="txt-go-cmd">GO!</div>
                             <div class="sub-command" id="txt-go-sub">PLACE FREE</div>
+                            <!-- ДИНАМІЧНИЙ ETA ДЛЯ ВОДІЯ -->
                             <div class="eta-display-driver" id="driver-eta-countdown">ETA TO DOCK: --:--</div>
                             <button class="btn-ack" id="btn-ack-go" onclick="ackDriver('GO')">ACKNOWLEDGE</button>
                         </div>
@@ -310,6 +324,7 @@
     </div>
 
     <script>
+        // КОНФІГУРАЦІЯ ТА СЛОВНИК
         const dict = {
             'UK': { hub: 'HUB_ALPHA', coords: [51.46, 0.25], startCoords: [51.58, 0.05] },
             'USA': { hub: 'HUB_BETA', coords: [40.54, -74.18], startCoords: [40.75, -74.35] }
@@ -371,11 +386,13 @@
             }
         }
 
+        // ОБЧИСЛЕННЯ ЧАСУ ПРИБУТТЯ
         function calculateETA(truck) {
             const d = dict[currentRegion];
+            // 1 градус ~ 111км, швидкість в демо ~40км/г
             const dist = Math.sqrt(Math.pow(truck.lat - d.coords[0], 2) + Math.pow(truck.lng - d.coords[1], 2)) * 111;
-            const minutes = Math.floor(dist * 1.5);
-            const seconds = Math.floor((dist * 1.5 * 60) % 60);
+            const minutes = Math.floor(dist * 1.8);
+            const seconds = Math.floor((dist * 1.8 * 60) % 60);
             return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
         }
 
@@ -395,26 +412,29 @@
                     archiveTable.appendChild(row);
                     return;
                 }
+                
                 truck.eta = calculateETA(truck);
-                const item = document.createElement('div');
-                item.className = `admin-item ${truck.id === activeAdminAsset ? 'selected' : ''}`;
+                const isSelected = truck.id === activeAdminAsset;
+
                 if (truck.status === 'BOUND' || truck.status === 'CALLED') {
+                    const item = document.createElement('div');
+                    item.className = `admin-item ${isSelected ? 'selected' : ''}`;
                     item.onclick = () => focusToken(truck.id);
-                    item.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.6rem;"><span>${truck.id}</span><span style="color:${truck.status === 'CALLED' ? 'var(--proceed-green)' : 'var(--alert-red)'}">ETA: ${truck.eta}</span></div>`;
+                    item.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.6rem;">
+                        <span>${truck.id}</span>
+                        <span style="color:${truck.status === 'CALLED' ? 'var(--proceed-green)' : 'var(--alert-red)'}">ETA: ${truck.eta}</span>
+                    </div>`;
                     activeList.appendChild(item);
                 } else {
+                    const item = document.createElement('div');
+                    item.className = `admin-item ${isSelected ? 'selected' : ''}`;
                     item.onclick = () => focusToken(truck.id);
                     item.innerHTML = `<div style="font-size:0.55rem;">${truck.id} <span class="eta-badge">GPS: ${truck.eta}</span></div>`;
                     pendingList.appendChild(item);
                 }
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${truck.id}</td><td>${truck.eta}</td><td>${truck.status}</td>`;
-                cloudTable.appendChild(tr);
-            });
-
-            ghostFleet.forEach(g => {
-                const tr = document.createElement('tr'); tr.style.opacity = "0.5";
-                tr.innerHTML = `<td>${g.id}*</td><td>3m 40s</td><td>IN_TRANSIT</td>`;
                 cloudTable.appendChild(tr);
             });
 
@@ -456,7 +476,7 @@
             if(mapMarkers[truck.id]) { mapMarkers[truck.id].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [8, 8] })); setTimeout(() => { if(mapMarkers[truck.id]) { map.removeLayer(mapMarkers[truck.id]); delete mapMarkers[truck.id]; } }, 500); }
             document.getElementById('shred-confirm').classList.add('hidden');
             activeAdminAsset = null; renderUI();
-            if (fleetData.filter(t => t.status === 'PENDING').length < 5) { for(let i=0; i<10; i++) fleetData.push(createNewTruck()); }
+            if (fleetData.filter(t => t.status === 'PENDING').length < 5) { for(let i=0; i<15; i++) fleetData.push(createNewTruck()); }
         }
 
         function renderDriverUI() {
@@ -473,6 +493,7 @@
                 else { document.getElementById('txt-stop-cmd').innerText = "STOP!"; document.getElementById('txt-stop-sub').innerText = "FIND PARKING"; document.getElementById('btn-ack-stop').classList.remove('hidden'); }
             } else if (truck.status === 'CALLED') {
                 vGo.classList.remove('hidden'); frame.classList.add('driver-bg-go');
+                // ОНОВЛЕННЯ ETA ДЛЯ ВОДІЯ
                 document.getElementById('driver-eta-countdown').innerText = `ETA TO DOCK: ${truck.eta}`;
                 if(truck.acknowledged) { document.getElementById('txt-go-cmd').innerText = "DOCK #1"; document.getElementById('txt-go-sub').innerText = "PROCEED NOW"; document.getElementById('btn-ack-go').classList.add('hidden'); }
                 else { document.getElementById('txt-go-cmd').innerText = "GO!"; document.getElementById('txt-go-sub').innerText = "PLACE FREE"; document.getElementById('btn-ack-go').classList.remove('hidden'); }
