@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZVL | 3PL POV & GPS Tracker Simulation</title>
+    <title>ZVL | 3PL POV & GPS Simulation</title>
     
     <!-- LEAFLET.JS ДЛЯ ГЕОПРОСТОРОВОЇ СИМУЛЯЦІЇ -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,7 +12,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
 
-        /* ВІЗУАЛЬНА ДНК СИСТЕМИ */
         :root {
             --deep-navy: #0A1128;
             --safety-orange: #FF9F1C;
@@ -27,8 +26,7 @@
         * {
             box-sizing: border-box;
             border-radius: 0px !important;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Roboto Mono', monospace;
             text-transform: uppercase;
         }
@@ -44,10 +42,8 @@
                 linear-gradient(var(--grid-grey) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-grey) 1px, transparent 1px);
             background-size: 40px 40px;
-            background-position: center center;
         }
 
-        /* ШАПКА ПРЕЗЕНТАЦІЇ */
         header {
             background-color: var(--deep-navy);
             border-bottom: 2px solid var(--safety-orange);
@@ -58,7 +54,7 @@
             z-index: 2000;
         }
 
-        .logo { font-weight: 700; font-size: 1rem; letter-spacing: 2px; color: var(--data-white); }
+        .logo { font-weight: 700; font-size: 1rem; letter-spacing: 2px; }
         .logo span { color: var(--safety-orange); }
         
         .header-controls { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
@@ -70,7 +66,6 @@
         }
         .btn-region.active { background-color: var(--safety-orange); color: var(--deep-navy); border-color: var(--safety-orange); }
 
-        /* ГОЛОВНА НАВІГАЦІЯ */
         .main-nav {
             display: flex;
             background: rgba(10, 17, 40, 0.9);
@@ -90,7 +85,6 @@
         .view-section { display: flex; flex: 1; overflow: hidden; width: 100%; position: relative; }
         .hidden-view { display: none !important; }
 
-        /* РОЛЬОВИЙ ПЕРЕМИКАЧ */
         .role-switcher {
             width: 50px; background: var(--grid-grey); display: flex;
             flex-direction: column; border-right: 1px solid var(--safety-orange);
@@ -108,22 +102,18 @@
         .phone-pov-container {
             flex: 1; display: flex; justify-content: center; align-items: center;
             background: radial-gradient(circle, rgba(43, 45, 66, 0.5) 0%, rgba(10, 17, 40, 1) 100%);
-            overflow: hidden;
             perspective: 1000px;
         }
 
         .phone-frame {
-            width: 310px;
-            height: 630px;
+            width: 310px; height: 630px;
             background: var(--phone-case);
             border-radius: 50px !important;
             border: 10px solid #1a1a1a;
             position: relative;
             box-shadow: 0 30px 60px rgba(0,0,0,0.9), inset 0 0 10px rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transform: rotateX(5deg);
+            display: flex; flex-direction: column;
+            overflow: hidden; transform: rotateX(5deg);
         }
 
         .phone-island {
@@ -136,8 +126,7 @@
             flex: 1; width: 100%; height: 100%;
             background: var(--deep-navy);
             display: flex; flex-direction: column;
-            overflow: hidden;
-            position: relative;
+            overflow: hidden; position: relative;
             border-radius: 35px !important;
         }
 
@@ -152,7 +141,8 @@
         .driver-bg-stop { background-color: var(--alert-red) !important; color: white !important; }
         .driver-bg-go { background-color: var(--proceed-green) !important; color: white !important; }
         .huge-command { font-size: 3rem; font-weight: 900; margin-bottom: 5px; line-height: 1; }
-        .sub-command { font-size: 1.1rem; font-weight: 700; margin-bottom: 40px; }
+        .sub-command { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+        .eta-display-driver { font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 30px; border: 1px solid white; padding: 5px 15px; }
         .btn-ack { background: rgba(0,0,0,0.2); border: 2px solid white; color: white; padding: 15px 35px; font-weight: 700; cursor: pointer; }
 
         /* ADMIN TERMINAL */
@@ -166,10 +156,17 @@
         .btn-cmd { padding: 12px 2px; font-size: 0.65rem; font-weight: 700; border: 1px solid; cursor: pointer; background: transparent; color: white; }
         .btn-stop-cmd { border-color: var(--alert-red); color: var(--alert-red); }
         .btn-go-cmd { border-color: var(--proceed-green); color: var(--proceed-green); }
-        .btn-track-cmd { border-color: var(--safety-orange); color: var(--safety-orange); width: 100%; padding: 12px; margin-bottom: 8px; font-size: 0.65rem; font-weight: 700; cursor: pointer; background: rgba(255, 159, 28, 0.1); }
-        .btn-shred-cmd { border: 1px dashed var(--safety-orange); color: var(--safety-orange); width: 100%; padding: 10px; font-size: 0.6rem; }
+        
+        /* КНОПКА ТРЕКЕРА */
+        .btn-track-cmd { 
+            border-color: var(--safety-orange); color: var(--safety-orange); 
+            width: 100%; padding: 12px; margin-bottom: 8px; 
+            font-size: 0.65rem; font-weight: 700; cursor: pointer; 
+            background: rgba(255, 159, 28, 0.1); border: 1px solid;
+        }
 
-        /* SHRED CONFIRM */
+        .btn-shred-cmd { border: 1px dashed var(--safety-orange); color: var(--safety-orange); width: 100%; padding: 10px; font-size: 0.6rem; cursor: pointer; background: transparent; }
+
         .shred-confirm-overlay {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: #000; border: 2px solid var(--alert-red);
@@ -177,7 +174,7 @@
             z-index: 110; padding: 15px; text-align: center; border-radius: 35px !important;
         }
 
-        /* GLOBAL MONITOR (50/50) */
+        /* CLOUD DASHBOARD */
         .dashboard-layout { width: 100%; height: 100%; display: flex; flex-direction: column; }
         .map-container { height: 50%; border-bottom: 2px solid var(--safety-orange); position: relative; width: 100%; z-index: 1; }
         #leaflet-map { width: 100%; height: 100%; background: var(--deep-navy); }
@@ -186,12 +183,7 @@
         .data-container { flex: 1; overflow-y: auto; padding: 10px; background: rgba(10, 17, 40, 0.9); }
         .data-table { width: 100%; border-collapse: collapse; font-size: 0.55rem; }
         .data-table th, .data-table td { border: 1px solid var(--grid-grey); padding: 6px; text-align: left; }
-        .data-table th { color: var(--safety-orange); background: rgba(43, 45, 66, 0.5); position: sticky; top: 0; }
-
-        /* ICONS */
-        .map-truck-icon { background-color: var(--alert-red); border: 1px solid #fff; width: 8px; height: 8px; border-radius: 50% !important; box-shadow: 0 0 5px var(--alert-red); }
-        .map-truck-icon.green { background-color: var(--proceed-green); box-shadow: 0 0 5px var(--proceed-green); }
-        .map-truck-icon.ghost { background-color: #888; border: 1px solid #444; width: 6px; height: 6px; opacity: 0.6; }
+        .data-table th { color: var(--safety-orange); background: rgba(43, 45, 66, 0.5); }
 
         .hidden { display: none !important; }
         .glitch { animation: glitch-anim 0.2s linear infinite; }
@@ -199,7 +191,6 @@
 
         @media (max-width: 480px) {
             .phone-frame { width: 280px; height: 560px; }
-            .huge-command { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -209,8 +200,8 @@
         <div class="logo">ZVL<span>_</span>SYSTEM</div>
         <div class="header-controls">
             <div class="region-toggle">
-                <button class="btn-region active" onclick="switchRegion('UK')">UK</button>
-                <button class="btn-region" onclick="switchRegion('USA')">USA</button>
+                <button class="btn-region active" onclick="switchRegion('UK')" id="btn-uk-top">UK</button>
+                <button class="btn-region" onclick="switchRegion('USA')" id="btn-usa-top">USA</button>
             </div>
             <div class="status-bar">PATENT PENDING</div>
         </div>
@@ -236,7 +227,7 @@
                         <span id="hw-time">--:--</span>
                     </div>
 
-                    <!-- DRIVER INTERFACE -->
+                    <!-- ЕКРАН ВОДІЯ -->
                     <div id="driver-ui-frame" class="screen-content">
                         <div id="view-login">
                             <div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">SCAN TO LOGIN</div>
@@ -256,6 +247,7 @@
                         <div id="view-go" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <div class="huge-command" id="txt-go-cmd">GO!</div>
                             <div class="sub-command" id="txt-go-sub">PLACE FREE</div>
+                            <div class="eta-display-driver" id="driver-eta-countdown">ETA TO DOCK: --:--</div>
                             <button class="btn-ack" id="btn-ack-go" onclick="ackDriver('GO')">ACKNOWLEDGE</button>
                         </div>
 
@@ -265,7 +257,7 @@
                         </div>
                     </div>
 
-                    <!-- ADMIN INTERFACE -->
+                    <!-- ТЕРМІНАЛ АДМІНА -->
                     <div id="admin-ui-frame" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
                         <div class="panel-header" style="background: #222; border:none;"><span>TERMINAL (GPS)</span><span>HUB_A</span></div>
                         <div class="admin-lists-container">
@@ -278,9 +270,11 @@
                                     </div>
                                 </div>
                                 <div style="font-size: 0.8rem; font-weight: 700; margin-bottom: 5px;">TRUCK: <span id="adm-active-token">--</span></div>
+                                
                                 <button class="btn-track-cmd" id="btn-active-gps" onclick="switchMainView('global')">
-                                    TRACK GPS: <span id="adm-active-eta-val">--:--</span>
+                                    TRACK LIVE GPS: <span id="adm-active-eta-val">--:--</span>
                                 </button>
+
                                 <div class="control-grid">
                                     <button class="btn-cmd btn-stop-cmd" onclick="adminSetState('BOUND')">STOP (RED)</button>
                                     <button class="btn-cmd btn-go-cmd" onclick="adminSetState('CALLED')">GO (GRN)</button>
@@ -296,17 +290,17 @@
         </div>
     </div>
 
-    <!-- GLOBAL HUB MONITOR (50/50 VIEW) -->
+    <!-- GLOBAL MONITOR -->
     <div id="section-global" class="view-section hidden-view">
         <div class="dashboard-layout">
             <div class="map-container"><div id="leaflet-map"></div></div>
             <div class="data-container">
-                <div style="font-size: 0.7rem; font-weight: 700; color: var(--safety-orange); margin-bottom: 8px;">ACTIVE FLEET MONITOR</div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: var(--safety-orange); margin-bottom: 8px;">LIVE FLEET TRACKER</div>
                 <table class="data-table">
                     <thead><tr><th>ID</th><th>ETA</th><th>STATUS</th></tr></thead>
                     <tbody id="cloud-table-body"></tbody>
                 </table>
-                <div style="font-size: 0.7rem; font-weight: 700; color: #888; margin: 15px 0 8px; border-top: 1px solid var(--grid-grey); padding-top: 10px;">COMPLETED ARCHIVE (HISTORY)</div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: #888; margin: 15px 0 8px; border-top: 1px solid var(--grid-grey); padding-top: 10px;">COMPLETED ARCHIVE</div>
                 <table class="data-table" style="opacity: 0.6;">
                     <thead><tr><th>ID</th><th>DATE</th><th>FINISH</th></tr></thead>
                     <tbody id="archive-table-body"></tbody>
@@ -316,7 +310,6 @@
     </div>
 
     <script>
-        // CONFIGURATION & DICTIONARY
         const dict = {
             'UK': { hub: 'HUB_ALPHA', coords: [51.46, 0.25], startCoords: [51.58, 0.05] },
             'USA': { hub: 'HUB_BETA', coords: [40.54, -74.18], startCoords: [40.75, -74.35] }
@@ -328,29 +321,19 @@
         function createNewTruck() {
             const d = dict[currentRegion];
             return { 
-                id: generateID(), 
-                status: 'PENDING', 
+                id: generateID(), status: 'PENDING', 
                 lat: d.startCoords[0] + (Math.random()-0.5)*0.05, 
                 lng: d.startCoords[1] + (Math.random()-0.5)*0.05, 
-                acknowledged: false,
-                finishTime: null,
-                finishDate: null,
-                eta: '--'
+                acknowledged: false, finishTime: null, finishDate: null, eta: '--'
             };
         }
 
-        // INITIAL FLEET
         let fleetData = [];
         for(let i=0; i<15; i++) fleetData.push(createNewTruck());
 
-        // GHOST FLEET (IMAGINARY CARS)
         let ghostFleet = [];
         for(let i=0; i<8; i++) {
-            ghostFleet.push({ 
-                id: 'GH-' + (100 + i), 
-                status: 'GHOST_DEMO', 
-                offset: [(Math.random()-0.5)*0.1, (Math.random()-0.5)*0.1] 
-            });
+            ghostFleet.push({ id: 'GH-'+(100+i), offset: [(Math.random()-0.5)*0.1, (Math.random()-0.5)*0.1] });
         }
 
         let activeAdminAsset = null;
@@ -359,7 +342,6 @@
         let mapMarkers = {}; 
         let ghostMarkers = {};
 
-        // UI ORCHESTRATION
         function switchRole(role) {
             document.getElementById('role-driver').classList.remove('active');
             document.getElementById('role-admin').classList.remove('active');
@@ -413,34 +395,26 @@
                     archiveTable.appendChild(row);
                     return;
                 }
-
                 truck.eta = calculateETA(truck);
                 const item = document.createElement('div');
                 item.className = `admin-item ${truck.id === activeAdminAsset ? 'selected' : ''}`;
-                
                 if (truck.status === 'BOUND' || truck.status === 'CALLED') {
                     item.onclick = () => focusToken(truck.id);
-                    item.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.6rem;">
-                        <span>${truck.id}</span>
-                        <span style="color:${truck.status === 'CALLED' ? 'var(--proceed-green)' : 'var(--alert-red)'}">ETA: ${truck.eta}</span>
-                    </div>`;
+                    item.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.6rem;"><span>${truck.id}</span><span style="color:${truck.status === 'CALLED' ? 'var(--proceed-green)' : 'var(--alert-red)'}">ETA: ${truck.eta}</span></div>`;
                     activeList.appendChild(item);
                 } else {
                     item.onclick = () => focusToken(truck.id);
                     item.innerHTML = `<div style="font-size:0.55rem;">${truck.id} <span class="eta-badge">GPS: ${truck.eta}</span></div>`;
                     pendingList.appendChild(item);
                 }
-
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${truck.id}</td><td>${truck.eta}</td><td>${truck.status}</td>`;
                 cloudTable.appendChild(tr);
             });
 
-            // Add Ghosts to Table for scale
-            ghostFleet.forEach(ghost => {
-                const tr = document.createElement('tr');
-                tr.style.opacity = "0.5";
-                tr.innerHTML = `<td>${ghost.id}*</td><td>3m 40s</td><td>IN_TRANSIT</td>`;
+            ghostFleet.forEach(g => {
+                const tr = document.createElement('tr'); tr.style.opacity = "0.5";
+                tr.innerHTML = `<td>${g.id}*</td><td>3m 40s</td><td>IN_TRANSIT</td>`;
                 cloudTable.appendChild(tr);
             });
 
@@ -456,13 +430,9 @@
         }
 
         function focusToken(id) {
-            activeAdminAsset = id;
-            driverDemoAsset = id;
+            activeAdminAsset = id; driverDemoAsset = id;
             const truck = fleetData.find(t => t.id === id);
-            if(truck.status === 'PENDING') {
-                createMapMarker(truck);
-                truck.status = 'BOUND';
-            }
+            if(truck.status === 'PENDING') { createMapMarker(truck); truck.status = 'BOUND'; }
             document.getElementById('shred-confirm').classList.add('hidden');
             renderUI();
         }
@@ -470,19 +440,12 @@
         function adminSetState(state) {
             if(!activeAdminAsset) return;
             const truck = fleetData.find(t => t.id === activeAdminAsset);
-            truck.status = state;
-            truck.acknowledged = false;
-            if(mapMarkers[truck.id]) {
-                mapMarkers[truck.id].setIcon(L.divIcon({ className: `map-truck-icon ${state === 'CALLED' ? 'green' : ''}`, iconSize: [8, 8] }));
-            }
+            truck.status = state; truck.acknowledged = false;
+            if(mapMarkers[truck.id]) mapMarkers[truck.id].setIcon(L.divIcon({ className: `map-truck-icon ${state === 'CALLED' ? 'green' : ''}`, iconSize: [8, 8] }));
             renderUI();
         }
 
-        function requestShred() { 
-            if(!activeAdminAsset) return;
-            document.getElementById('confirm-id').innerText = activeAdminAsset; 
-            document.getElementById('shred-confirm').classList.remove('hidden'); 
-        }
+        function requestShred() { if(!activeAdminAsset) return; document.getElementById('confirm-id').innerText = activeAdminAsset; document.getElementById('shred-confirm').classList.remove('hidden'); }
         function cancelShred() { document.getElementById('shred-confirm').classList.add('hidden'); }
 
         function executeShred() {
@@ -490,88 +453,43 @@
             truck.finishTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
             truck.finishDate = new Date().toLocaleDateString('en-GB');
             truck.status = 'SHREDDED';
-            if(mapMarkers[truck.id]) {
-                mapMarkers[truck.id].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [8, 8] }));
-                setTimeout(() => { if(mapMarkers[truck.id]) { map.removeLayer(mapMarkers[truck.id]); delete mapMarkers[truck.id]; } }, 500);
-            }
+            if(mapMarkers[truck.id]) { mapMarkers[truck.id].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [8, 8] })); setTimeout(() => { if(mapMarkers[truck.id]) { map.removeLayer(mapMarkers[truck.id]); delete mapMarkers[truck.id]; } }, 500); }
             document.getElementById('shred-confirm').classList.add('hidden');
-            activeAdminAsset = null;
-            renderUI();
-            if (fleetData.filter(t => t.status === 'PENDING').length < 5) {
-                for(let i=0; i<50; i++) fleetData.push(createNewTruck());
-                renderUI();
-            }
+            activeAdminAsset = null; renderUI();
+            if (fleetData.filter(t => t.status === 'PENDING').length < 5) { for(let i=0; i<10; i++) fleetData.push(createNewTruck()); }
         }
 
         function renderDriverUI() {
             const frame = document.querySelector('.phone-screen');
-            const vLogin = document.getElementById('view-login');
-            const vStop = document.getElementById('view-stop');
-            const vGo = document.getElementById('view-go');
-            const vShred = document.getElementById('view-shredded');
-            
-            if(!vLogin || !vStop || !vGo || !vShred) return;
-            [vLogin, vStop, vGo, vShred].forEach(v => v.classList.add('hidden'));
+            const vLogin = document.getElementById('view-login'), vStop = document.getElementById('view-stop'), vGo = document.getElementById('view-go'), vShred = document.getElementById('view-shredded');
+            if(!vLogin) return; [vLogin, vStop, vGo, vShred].forEach(v => v.classList.add('hidden'));
             frame.className = 'phone-screen';
-
             const truck = fleetData.find(t => t.id === driverDemoAsset);
-            if(!truck) return;
-            document.getElementById('driver-qr-val').innerText = driverDemoAsset;
-
-            if(truck.status === 'PENDING') {
-                vLogin.classList.remove('hidden');
-            } else if (truck.status === 'BOUND') {
-                vStop.classList.remove('hidden');
-                frame.classList.add('driver-bg-stop');
-                if(truck.acknowledged) {
-                    document.getElementById('txt-stop-cmd').innerText = "PARKING";
-                    document.getElementById('txt-stop-sub').innerText = "STAY IN VEHICLE";
-                    document.getElementById('btn-ack-stop').classList.add('hidden');
-                } else {
-                    document.getElementById('txt-stop-cmd').innerText = "STOP!";
-                    document.getElementById('txt-stop-sub').innerText = "FIND PARKING";
-                    document.getElementById('btn-ack-stop').classList.remove('hidden');
-                }
+            if(!truck) return; document.getElementById('driver-qr-val').innerText = driverDemoAsset;
+            if(truck.status === 'PENDING') vLogin.classList.remove('hidden');
+            else if (truck.status === 'BOUND') {
+                vStop.classList.remove('hidden'); frame.classList.add('driver-bg-stop');
+                if(truck.acknowledged) { document.getElementById('txt-stop-cmd').innerText = "PARKING"; document.getElementById('txt-stop-sub').innerText = "STAY IN VEHICLE"; document.getElementById('btn-ack-stop').classList.add('hidden'); }
+                else { document.getElementById('txt-stop-cmd').innerText = "STOP!"; document.getElementById('txt-stop-sub').innerText = "FIND PARKING"; document.getElementById('btn-ack-stop').classList.remove('hidden'); }
             } else if (truck.status === 'CALLED') {
-                vGo.classList.remove('hidden');
-                frame.classList.add('driver-bg-go');
-                if(truck.acknowledged) {
-                    document.getElementById('txt-go-cmd').innerText = "DOCK #1";
-                    document.getElementById('txt-go-sub').innerText = "PROCEED NOW";
-                    document.getElementById('btn-ack-go').classList.add('hidden');
-                } else {
-                    document.getElementById('txt-go-cmd').innerText = "GO!";
-                    document.getElementById('txt-go-sub').innerText = "PLACE FREE";
-                    document.getElementById('btn-ack-go').classList.remove('hidden');
-                }
-            } else if (truck.status === 'SHREDDED') {
-                vShred.classList.remove('hidden');
-                setTimeout(() => { 
-                    const next = fleetData.find(t => t.status === 'PENDING');
-                    if(next) driverDemoAsset = next.id;
-                    renderUI(); 
-                }, 3000);
-            }
+                vGo.classList.remove('hidden'); frame.classList.add('driver-bg-go');
+                document.getElementById('driver-eta-countdown').innerText = `ETA TO DOCK: ${truck.eta}`;
+                if(truck.acknowledged) { document.getElementById('txt-go-cmd').innerText = "DOCK #1"; document.getElementById('txt-go-sub').innerText = "PROCEED NOW"; document.getElementById('btn-ack-go').classList.add('hidden'); }
+                else { document.getElementById('txt-go-cmd').innerText = "GO!"; document.getElementById('txt-go-sub').innerText = "PLACE FREE"; document.getElementById('btn-ack-go').classList.remove('hidden'); }
+            } else if (truck.status === 'SHREDDED') vShred.classList.remove('hidden');
         }
 
-        function ackDriver(type) {
-            const truck = fleetData.find(t => t.id === driverDemoAsset);
-            if(truck) { truck.acknowledged = true; renderUI(); }
-        }
+        function ackDriver() { const truck = fleetData.find(t => t.id === driverDemoAsset); if(truck) { truck.acknowledged = true; renderUI(); } }
 
         function switchRegion(region) {
-            currentRegion = region;
-            document.querySelectorAll('.btn-region').forEach(b => b.classList.remove('active'));
+            currentRegion = region; document.querySelectorAll('.btn-region').forEach(b => b.classList.remove('active'));
             if(event) event.target.classList.add('active');
             const d = dict[region];
             if(map) map.setView(d.coords, 10);
             if(hubMarker) hubMarker.setLatLng(d.coords);
             Object.values(mapMarkers).forEach(m => map.removeLayer(m));
-            Object.values(ghostMarkers).forEach(m => map.removeLayer(m));
-            mapMarkers = {}; ghostMarkers = {};
-            fleetData = [];
-            for(let i=0; i<15; i++) fleetData.push(createNewTruck());
-            initGhostMarkers(); activeAdminAsset = null; renderUI();
+            mapMarkers = {}; fleetData = [];
+            for(let i=0; i<15; i++) fleetData.push(createNewTruck()); renderUI();
         }
 
         function initMap() {
@@ -579,38 +497,16 @@
             map = L.map('leaflet-map', { zoomControl: false, attributionControl: false }).setView(d.coords, 10);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             hubMarker = L.marker(d.coords, { icon: L.divIcon({ className: 'map-hub-icon', html: 'H', iconSize: [16, 16] }) }).addTo(map);
-            initGhostMarkers();
         }
 
-        function initGhostMarkers() {
-            const d = dict[currentRegion];
-            ghostFleet.forEach(ghost => {
-                const lat = d.coords[0] + ghost.offset[0];
-                const lng = d.coords[1] + ghost.offset[1];
-                ghostMarkers[ghost.id] = L.marker([lat, lng], { icon: L.divIcon({ className: 'map-truck-icon ghost', iconSize: [6, 6] }) }).addTo(map);
-            });
-        }
-
-        function createMapMarker(truck) {
-            mapMarkers[truck.id] = L.marker([truck.lat, truck.lng], { icon: L.divIcon({ className: `map-truck-icon`, iconSize: [8, 8] }) }).addTo(map);
-        }
+        function createMapMarker(truck) { mapMarkers[truck.id] = L.marker([truck.lat, truck.lng], { icon: L.divIcon({ className: `map-truck-icon`, iconSize: [8, 8] }) }).addTo(map); }
 
         function simulationTick() {
             const d = dict[currentRegion];
             fleetData.forEach(truck => {
-                if (truck.status === 'BOUND') {
-                    truck.lat += (Math.random() - 0.5) * 0.0002; truck.lng += (Math.random() - 0.5) * 0.0002;
-                } else if (truck.status === 'CALLED') {
-                    truck.lat += (d.coords[0] - truck.lat) * 0.03; truck.lng += (d.coords[1] - truck.lng) * 0.03;
-                }
+                if (truck.status === 'BOUND') { truck.lat += (Math.random()-0.5)*0.0002; truck.lng += (Math.random()-0.5)*0.0002; }
+                else if (truck.status === 'CALLED') { truck.lat += (d.coords[0]-truck.lat)*0.03; truck.lng += (d.coords[1]-truck.lng)*0.03; }
                 if(mapMarkers[truck.id]) mapMarkers[truck.id].setLatLng([truck.lat, truck.lng]);
-            });
-            // Update Ghosts slightly
-            ghostFleet.forEach(ghost => {
-                if(ghostMarkers[ghost.id]) {
-                    const pos = ghostMarkers[ghost.id].getLatLng();
-                    ghostMarkers[ghost.id].setLatLng([pos.lat + (Math.random()-0.5)*0.0001, pos.lng + (Math.random()-0.5)*0.0001]);
-                }
             });
             const timeEl = document.getElementById('hw-time');
             if(timeEl) timeEl.innerText = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
