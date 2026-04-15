@@ -12,6 +12,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
 
+        /* ВІЗУАЛЬНА ДНК СИСТЕМИ */
         :root {
             --deep-navy: #0A1128;
             --safety-orange: #FF9F1C;
@@ -21,6 +22,7 @@
             --proceed-green: #2A9D8F;
             --phone-case: #0f0f0f;
             --phone-bezel: #1a1a1a;
+            --jit-gold: #FFD700;
         }
 
         * {
@@ -143,21 +145,20 @@
         .huge-command { font-size: 3rem; font-weight: 900; margin-bottom: 5px; line-height: 1; }
         .sub-command { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
         
-        /* ETA DISPLAY FOR DRIVER */
+        /* ETA ДЛЯ ВОДІЯ */
         .eta-display-driver { 
-            font-size: 0.9rem; font-weight: 700; 
-            color: rgba(255,255,255,0.9); margin-bottom: 30px; 
-            border: 1px solid white; padding: 8px 15px;
-            background: rgba(0,0,0,0.1);
+            font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.9); 
+            margin-bottom: 30px; border: 1px solid white; padding: 8px 15px; background: rgba(0,0,0,0.1);
         }
         
         .btn-ack { background: rgba(0,0,0,0.2); border: 2px solid white; color: white; padding: 15px 35px; font-weight: 700; cursor: pointer; }
 
-        /* ADMIN TERMINAL */
+        /* ТЕРМІНАЛ АДМІНА */
         .admin-lists-container { display: flex; flex-direction: column; gap: 8px; padding: 10px; overflow-y: auto; flex: 1; width: 100%; }
         .list-section-title { font-size: 0.6rem; color: var(--safety-orange); border-bottom: 1px solid var(--grid-grey); padding-bottom: 2px; margin-bottom: 5px; font-weight: 700; }
         .admin-item { border: 1px solid var(--grid-grey); background: rgba(43, 45, 66, 0.3); padding: 8px; margin-bottom: 4px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
         .admin-item.selected { border-color: var(--safety-orange); background: rgba(255, 159, 28, 0.1); }
+        .admin-item.jit-swap-priority { border-left: 3px solid var(--jit-gold); }
         
         .eta-badge {
             font-size: 0.6rem; background: rgba(0,0,0,0.5); color: var(--safety-orange);
@@ -170,7 +171,6 @@
         .btn-stop-cmd { border-color: var(--alert-red); color: var(--alert-red); }
         .btn-go-cmd { border-color: var(--proceed-green); color: var(--proceed-green); }
         
-        /* КНОПКА ТРЕКЕРА */
         .btn-track-cmd { 
             border-color: var(--safety-orange); color: var(--safety-orange); 
             width: 100%; padding: 12px; margin-bottom: 8px; 
@@ -187,7 +187,7 @@
             z-index: 110; padding: 15px; text-align: center; border-radius: 35px !important;
         }
 
-        /* CLOUD DASHBOARD */
+        /* КАРТА ТА ТАБЛИЦІ */
         .dashboard-layout { width: 100%; height: 100%; display: flex; flex-direction: column; }
         .map-container { height: 50%; border-bottom: 2px solid var(--safety-orange); position: relative; width: 100%; z-index: 1; }
         #leaflet-map { width: 100%; height: 100%; background: var(--deep-navy); }
@@ -198,13 +198,13 @@
         .data-table th, .data-table td { border: 1px solid var(--grid-grey); padding: 6px; text-align: left; }
         .data-table th { color: var(--safety-orange); background: rgba(43, 45, 66, 0.5); }
 
+        .map-truck-icon { background-color: var(--alert-red); border: 1px solid #fff; width: 8px; height: 8px; border-radius: 50% !important; box-shadow: 0 0 5px var(--alert-red); }
+        .map-truck-icon.green { background-color: var(--proceed-green); box-shadow: 0 0 5px var(--proceed-green); }
+        .map-truck-icon.ghost { background-color: #888; border: 1px solid #444; width: 6px; height: 6px; opacity: 0.6; }
+
         .hidden { display: none !important; }
         .glitch { animation: glitch-anim 0.2s linear infinite; }
         @keyframes glitch-anim { 0% { transform: translate(0) } 20% { transform: translate(-1px, 1px) } 40% { transform: translate(-1px, -1px) } 100% { transform: translate(0) } }
-
-        @media (max-width: 480px) {
-            .phone-frame { width: 280px; height: 560px; }
-        }
     </style>
 </head>
 <body>
@@ -213,8 +213,8 @@
         <div class="logo">ZVL<span>_</span>SYSTEM</div>
         <div class="header-controls">
             <div class="region-toggle">
-                <button class="btn-region active" onclick="switchRegion('UK')" id="btn-uk-top">UK</button>
-                <button class="btn-region" onclick="switchRegion('USA')" id="btn-usa-top">USA</button>
+                <button class="btn-region active" onclick="switchRegion('UK')" id="btn-uk">UK</button>
+                <button class="btn-region" onclick="switchRegion('USA')" id="btn-usa">USA</button>
             </div>
             <div class="status-bar">PATENT PENDING</div>
         </div>
@@ -240,7 +240,7 @@
                         <span id="hw-time">--:--</span>
                     </div>
 
-                    <!-- DRIVER INTERFACE -->
+                    <!-- ЕКРАН ВОДІЯ -->
                     <div id="driver-ui-frame" class="screen-content">
                         <div id="view-login">
                             <div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">SCAN TO LOGIN</div>
@@ -260,7 +260,6 @@
                         <div id="view-go" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <div class="huge-command" id="txt-go-cmd">GO!</div>
                             <div class="sub-command" id="txt-go-sub">PLACE FREE</div>
-                            <!-- ДИНАМІЧНИЙ ETA ДЛЯ ВОДІЯ -->
                             <div class="eta-display-driver" id="driver-eta-countdown">ETA TO DOCK: --:--</div>
                             <button class="btn-ack" id="btn-ack-go" onclick="ackDriver('GO')">ACKNOWLEDGE</button>
                         </div>
@@ -284,11 +283,9 @@
                                     </div>
                                 </div>
                                 <div style="font-size: 0.8rem; font-weight: 700; margin-bottom: 5px;">TRUCK: <span id="adm-active-token">--</span></div>
-                                
                                 <button class="btn-track-cmd" id="btn-active-gps" onclick="switchMainView('global')">
                                     TRACK LIVE GPS: <span id="adm-active-eta-val">--:--</span>
                                 </button>
-
                                 <div class="control-grid">
                                     <button class="btn-cmd btn-stop-cmd" onclick="adminSetState('BOUND')">STOP (RED)</button>
                                     <button class="btn-cmd btn-go-cmd" onclick="adminSetState('CALLED')">GO (GRN)</button>
@@ -296,7 +293,7 @@
                                 <button class="btn-shred-cmd" onclick="requestShred()">COMPLETE TASK</button>
                             </div>
                             <div class="list-section-title">ACTIVE SESSIONS</div><div id="admin-active-list"></div>
-                            <div class="list-section-title">PENDING QUEUE</div><div id="admin-pending-list"></div>
+                            <div class="list-section-title">PENDING QUEUE (GPS)</div><div id="admin-pending-list"></div>
                         </div>
                     </div>
                 </div>
@@ -304,12 +301,12 @@
         </div>
     </div>
 
-    <!-- GLOBAL MONITOR -->
+    <!-- ГЛОБАЛЬНИЙ МОНІТОР -->
     <div id="section-global" class="view-section hidden-view">
         <div class="dashboard-layout">
             <div class="map-container"><div id="leaflet-map"></div></div>
             <div class="data-container">
-                <div style="font-size: 0.7rem; font-weight: 700; color: var(--safety-orange); margin-bottom: 8px;">LIVE FLEET TRACKER</div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: var(--safety-orange); margin-bottom: 8px;">LIVE FLEET MONITOR</div>
                 <table class="data-table">
                     <thead><tr><th>ID</th><th>ETA</th><th>STATUS</th></tr></thead>
                     <tbody id="cloud-table-body"></tbody>
@@ -324,10 +321,10 @@
     </div>
 
     <script>
-        // КОНФІГУРАЦІЯ ТА СЛОВНИК
+        // ІНІЦІАЛІЗАЦІЯ ДАНИХ (БЕЗ ПОМИЛОК ДОСТУПУ)
         const dict = {
-            'UK': { hub: 'HUB_ALPHA', coords: [51.46, 0.25], startCoords: [51.58, 0.05] },
-            'USA': { hub: 'HUB_BETA', coords: [40.54, -74.18], startCoords: [40.75, -74.35] }
+            'UK': { hub: 'HUB_ALPHA', coords: [51.46, 0.25], startCoords: [51.58, 0.05], bufferRadius: 25000 },
+            'USA': { hub: 'HUB_BETA', coords: [40.54, -74.18], startCoords: [40.75, -74.35], bufferRadius: 40233 }
         };
 
         let currentRegion = 'UK';
@@ -339,7 +336,8 @@
                 id: generateID(), status: 'PENDING', 
                 lat: d.startCoords[0] + (Math.random()-0.5)*0.05, 
                 lng: d.startCoords[1] + (Math.random()-0.5)*0.05, 
-                acknowledged: false, finishTime: null, finishDate: null, eta: '--'
+                acknowledged: false, finishTime: null, finishDate: null, eta: '--',
+                jitPriority: Math.random() > 0.8
             };
         }
 
@@ -353,10 +351,11 @@
 
         let activeAdminAsset = null;
         let driverDemoAsset = fleetData[0].id;
-        let map, hubMarker;
+        let map, hubMarker, bufferCircle;
         let mapMarkers = {}; 
         let ghostMarkers = {};
 
+        // РОЛЬОВИЙ ТА ГОЛОВНИЙ ПЕРЕМИКАЧІ
         function switchRole(role) {
             document.getElementById('role-driver').classList.remove('active');
             document.getElementById('role-admin').classList.remove('active');
@@ -386,16 +385,16 @@
             }
         }
 
-        // ОБЧИСЛЕННЯ ЧАСУ ПРИБУТТЯ
+        // GPS ETA МАТЕМАТИКА
         function calculateETA(truck) {
             const d = dict[currentRegion];
-            // 1 градус ~ 111км, швидкість в демо ~40км/г
             const dist = Math.sqrt(Math.pow(truck.lat - d.coords[0], 2) + Math.pow(truck.lng - d.coords[1], 2)) * 111;
-            const minutes = Math.floor(dist * 1.8);
-            const seconds = Math.floor((dist * 1.8 * 60) % 60);
+            const minutes = Math.floor(dist * 1.5);
+            const seconds = Math.floor((dist * 1.5 * 60) % 60);
             return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
         }
 
+        // РЕНДЕР ІНТЕРФЕЙСУ
         function renderUI() {
             const activeList = document.getElementById('admin-active-list');
             const pendingList = document.getElementById('admin-pending-list');
@@ -412,7 +411,6 @@
                     archiveTable.appendChild(row);
                     return;
                 }
-                
                 truck.eta = calculateETA(truck);
                 const isSelected = truck.id === activeAdminAsset;
 
@@ -420,10 +418,7 @@
                     const item = document.createElement('div');
                     item.className = `admin-item ${isSelected ? 'selected' : ''}`;
                     item.onclick = () => focusToken(truck.id);
-                    item.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.6rem;">
-                        <span>${truck.id}</span>
-                        <span style="color:${truck.status === 'CALLED' ? 'var(--proceed-green)' : 'var(--alert-red)'}">ETA: ${truck.eta}</span>
-                    </div>`;
+                    item.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.6rem;"><span>${truck.id}</span><span style="color:${truck.status === 'CALLED' ? 'var(--proceed-green)' : 'var(--alert-red)'}">ETA: ${truck.eta}</span></div>`;
                     activeList.appendChild(item);
                 } else {
                     const item = document.createElement('div');
@@ -432,7 +427,6 @@
                     item.innerHTML = `<div style="font-size:0.55rem;">${truck.id} <span class="eta-badge">GPS: ${truck.eta}</span></div>`;
                     pendingList.appendChild(item);
                 }
-
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${truck.id}</td><td>${truck.eta}</td><td>${truck.status}</td>`;
                 cloudTable.appendChild(tr);
@@ -476,7 +470,7 @@
             if(mapMarkers[truck.id]) { mapMarkers[truck.id].setIcon(L.divIcon({ className: 'map-truck-icon glitch', iconSize: [8, 8] })); setTimeout(() => { if(mapMarkers[truck.id]) { map.removeLayer(mapMarkers[truck.id]); delete mapMarkers[truck.id]; } }, 500); }
             document.getElementById('shred-confirm').classList.add('hidden');
             activeAdminAsset = null; renderUI();
-            if (fleetData.filter(t => t.status === 'PENDING').length < 5) { for(let i=0; i<15; i++) fleetData.push(createNewTruck()); }
+            if (fleetData.filter(t => t.status === 'PENDING').length < 5) { for(let i=0; i<30; i++) fleetData.push(createNewTruck()); }
         }
 
         function renderDriverUI() {
@@ -493,7 +487,6 @@
                 else { document.getElementById('txt-stop-cmd').innerText = "STOP!"; document.getElementById('txt-stop-sub').innerText = "FIND PARKING"; document.getElementById('btn-ack-stop').classList.remove('hidden'); }
             } else if (truck.status === 'CALLED') {
                 vGo.classList.remove('hidden'); frame.classList.add('driver-bg-go');
-                // ОНОВЛЕННЯ ETA ДЛЯ ВОДІЯ
                 document.getElementById('driver-eta-countdown').innerText = `ETA TO DOCK: ${truck.eta}`;
                 if(truck.acknowledged) { document.getElementById('txt-go-cmd').innerText = "DOCK #1"; document.getElementById('txt-go-sub').innerText = "PROCEED NOW"; document.getElementById('btn-ack-go').classList.add('hidden'); }
                 else { document.getElementById('txt-go-cmd').innerText = "GO!"; document.getElementById('txt-go-sub').innerText = "PLACE FREE"; document.getElementById('btn-ack-go').classList.remove('hidden'); }
@@ -508,9 +501,10 @@
             const d = dict[region];
             if(map) map.setView(d.coords, 10);
             if(hubMarker) hubMarker.setLatLng(d.coords);
+            if(bufferCircle) { bufferCircle.setLatLng(d.coords); bufferCircle.setRadius(d.bufferRadius); }
             Object.values(mapMarkers).forEach(m => map.removeLayer(m));
             mapMarkers = {}; fleetData = [];
-            for(let i=0; i<15; i++) fleetData.push(createNewTruck()); renderUI();
+            for(let i=0; i<50; i++) fleetData.push(createNewTruck()); renderUI();
         }
 
         function initMap() {
@@ -518,6 +512,11 @@
             map = L.map('leaflet-map', { zoomControl: false, attributionControl: false }).setView(d.coords, 10);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             hubMarker = L.marker(d.coords, { icon: L.divIcon({ className: 'map-hub-icon', html: 'H', iconSize: [16, 16] }) }).addTo(map);
+            bufferCircle = L.circle(d.coords, { color: '#FF9F1C', fillColor: '#FF9F1C', fillOpacity: 0.05, weight: 1, dashArray: '5, 5', radius: d.bufferRadius }).addTo(map);
+            ghostFleet.forEach(ghost => {
+                const lat = d.coords[0] + ghost.offset[0]; const lng = d.coords[1] + ghost.offset[1];
+                ghostMarkers[ghost.id] = L.marker([lat, lng], { icon: L.divIcon({ className: 'map-truck-icon ghost', iconSize: [6, 6] }) }).addTo(map);
+            });
         }
 
         function createMapMarker(truck) { mapMarkers[truck.id] = L.marker([truck.lat, truck.lng], { icon: L.divIcon({ className: `map-truck-icon`, iconSize: [8, 8] }) }).addTo(map); }
