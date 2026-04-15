@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZVL | 3PL POV & GPS Simulation</title>
     
-    <!-- LEAFLET.JS ДЛЯ ГЕОПРОСТОРОВОЇ СИМУЛЯЦІЇ -->
+    <!-- LEAFLET.JS FOR GEOSPATIAL SIMULATION -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
 
-        /* ВІЗУАЛЬНА ДНК СИСТЕМИ */
+        /* SYSTEM VISUAL DNA */
         :root {
             --deep-navy: #0A1128;
             --safety-orange: #FF9F1C;
@@ -145,7 +145,7 @@
         .huge-command { font-size: 3rem; font-weight: 900; margin-bottom: 5px; line-height: 1; }
         .sub-command { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
         
-        /* ETA ДЛЯ ВОДІЯ */
+        /* DRIVER ETA DISPLAY */
         .eta-display-driver { 
             font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.9); 
             margin-bottom: 30px; border: 1px solid white; padding: 8px 15px; background: rgba(0,0,0,0.1);
@@ -153,7 +153,7 @@
         
         .btn-ack { background: rgba(0,0,0,0.2); border: 2px solid white; color: white; padding: 15px 35px; font-weight: 700; cursor: pointer; }
 
-        /* ТЕРМІНАЛ АДМІНА */
+        /* ADMIN TERMINAL */
         .admin-lists-container { display: flex; flex-direction: column; gap: 8px; padding: 10px; overflow-y: auto; flex: 1; width: 100%; }
         .list-section-title { font-size: 0.6rem; color: var(--safety-orange); border-bottom: 1px solid var(--grid-grey); padding-bottom: 2px; margin-bottom: 5px; font-weight: 700; }
         .admin-item { border: 1px solid var(--grid-grey); background: rgba(43, 45, 66, 0.3); padding: 8px; margin-bottom: 4px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
@@ -171,6 +171,7 @@
         .btn-stop-cmd { border-color: var(--alert-red); color: var(--alert-red); }
         .btn-go-cmd { border-color: var(--proceed-green); color: var(--proceed-green); }
         
+        /* GPS TRACKER BUTTON */
         .btn-track-cmd { 
             border-color: var(--safety-orange); color: var(--safety-orange); 
             width: 100%; padding: 12px; margin-bottom: 8px; 
@@ -187,10 +188,12 @@
             z-index: 110; padding: 15px; text-align: center; border-radius: 35px !important;
         }
 
-        /* КАРТА ТА ТАБЛИЦІ */
+        /* MAP & TABLES */
         .dashboard-layout { width: 100%; height: 100%; display: flex; flex-direction: column; }
         .map-container { height: 50%; border-bottom: 2px solid var(--safety-orange); position: relative; width: 100%; z-index: 1; }
         #leaflet-map { width: 100%; height: 100%; background: var(--deep-navy); }
+        
+        /* Dark filter for OSM tiles */
         .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
         
         .data-container { flex: 1; overflow-y: auto; padding: 10px; background: rgba(10, 17, 40, 0.9); }
@@ -240,7 +243,7 @@
                         <span id="hw-time">--:--</span>
                     </div>
 
-                    <!-- ЕКРАН ВОДІЯ -->
+                    <!-- DRIVER INTERFACE -->
                     <div id="driver-ui-frame" class="screen-content">
                         <div id="view-login">
                             <div style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">SCAN TO LOGIN</div>
@@ -270,7 +273,7 @@
                         </div>
                     </div>
 
-                    <!-- ТЕРМІНАЛ АДМІНА -->
+                    <!-- ADMIN INTERFACE -->
                     <div id="admin-ui-frame" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
                         <div class="panel-header" style="background: #222; border:none;"><span>TERMINAL (GPS)</span><span>HUB_A</span></div>
                         <div class="admin-lists-container">
@@ -301,7 +304,7 @@
         </div>
     </div>
 
-    <!-- ГЛОБАЛЬНИЙ МОНІТОР -->
+    <!-- GLOBAL MONITOR -->
     <div id="section-global" class="view-section hidden-view">
         <div class="dashboard-layout">
             <div class="map-container"><div id="leaflet-map"></div></div>
@@ -321,7 +324,7 @@
     </div>
 
     <script>
-        // ІНІЦІАЛІЗАЦІЯ ДАНИХ (БЕЗ ПОМИЛОК ДОСТУПУ)
+        // DATA INITIALIZATION (UADG)
         const dict = {
             'UK': { hub: 'HUB_ALPHA', coords: [51.46, 0.25], startCoords: [51.58, 0.05], bufferRadius: 25000 },
             'USA': { hub: 'HUB_BETA', coords: [40.54, -74.18], startCoords: [40.75, -74.35], bufferRadius: 40233 }
@@ -355,7 +358,7 @@
         let mapMarkers = {}; 
         let ghostMarkers = {};
 
-        // РОЛЬОВИЙ ТА ГОЛОВНИЙ ПЕРЕМИКАЧІ
+        // ROLE AND MAIN VIEW SWITCHERS
         function switchRole(role) {
             document.getElementById('role-driver').classList.remove('active');
             document.getElementById('role-admin').classList.remove('active');
@@ -385,7 +388,7 @@
             }
         }
 
-        // GPS ETA МАТЕМАТИКА
+        // GPS ETA CALCULATIONS
         function calculateETA(truck) {
             const d = dict[currentRegion];
             const dist = Math.sqrt(Math.pow(truck.lat - d.coords[0], 2) + Math.pow(truck.lng - d.coords[1], 2)) * 111;
@@ -394,7 +397,7 @@
             return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
         }
 
-        // РЕНДЕР ІНТЕРФЕЙСУ
+        // INTERFACE RENDERER
         function renderUI() {
             const activeList = document.getElementById('admin-active-list');
             const pendingList = document.getElementById('admin-pending-list');
@@ -497,7 +500,8 @@
 
         function switchRegion(region) {
             currentRegion = region; document.querySelectorAll('.btn-region').forEach(b => b.classList.remove('active'));
-            if(event) event.target.classList.add('active');
+            const btnId = region === 'UK' ? 'btn-uk' : 'btn-usa';
+            document.getElementById(btnId).classList.add('active');
             const d = dict[region];
             if(map) map.setView(d.coords, 10);
             if(hubMarker) hubMarker.setLatLng(d.coords);
@@ -507,12 +511,19 @@
             for(let i=0; i<50; i++) fleetData.push(createNewTruck()); renderUI();
         }
 
+        // MAP INITIALIZATION
         function initMap() {
             const d = dict[currentRegion];
             map = L.map('leaflet-map', { zoomControl: false, attributionControl: false }).setView(d.coords, 10);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            
+            // Using OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
             hubMarker = L.marker(d.coords, { icon: L.divIcon({ className: 'map-hub-icon', html: 'H', iconSize: [16, 16] }) }).addTo(map);
             bufferCircle = L.circle(d.coords, { color: '#FF9F1C', fillColor: '#FF9F1C', fillOpacity: 0.05, weight: 1, dashArray: '5, 5', radius: d.bufferRadius }).addTo(map);
+            
             ghostFleet.forEach(ghost => {
                 const lat = d.coords[0] + ghost.offset[0]; const lng = d.coords[1] + ghost.offset[1];
                 ghostMarkers[ghost.id] = L.marker([lat, lng], { icon: L.divIcon({ className: 'map-truck-icon ghost', iconSize: [6, 6] }) }).addTo(map);
